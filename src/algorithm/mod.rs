@@ -1,2 +1,2 @@
 pub mod huffman;
-mod util;
+pub mod util;

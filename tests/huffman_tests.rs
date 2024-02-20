@@ -1,6 +1,6 @@
+use cmprsd::algorithm::huffman::{self, build_huffman_tree, combine_nodes, Frequency, Huffman};
+use cmprsd::algorithm::util::binary_tree::Tree;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
-
-use cmprsd::algorithm::huffman::{self, Frequency};
 
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -118,4 +118,30 @@ pub fn compute_frequencies_random_long_string() {
         .collect();
 
     check_frequencies(huffman::compute_frequencies(&random_string), &random_string)
+}
+
+#[test]
+pub fn combine_nodes_2() {
+    let frequencies = huffman::compute_frequencies("ab")
+        .iter()
+        .copied()
+        .map(Tree::Leaf)
+        .map(|c| match c {
+            Tree::Leaf(f) => (c, f.frequency),
+            _ => unreachable!(),
+        })
+        .collect::<Vec<(Tree<Frequency>, u16)>>();
+    let nodes = combine_nodes(frequencies);
+    assert_eq!(nodes.len(), 1);
+    let (combines_node, frequency) = &nodes[0];
+    assert_eq!(combines_node.len(), 3);
+    assert_eq!(*frequency, std::u16::MAX);
+    // if let Tree::Node { left, right } = combines_node {
+    //     match(left, right){
+    //         (Box(Tree::Leaf(left)), Box(Tree::Leaf(right))) => {assert_eq!(left)},
+    //         _ => unreachable!("node should contain two leaves.")
+    //     }
+    // } else {
+    //     panic!("root of tree should be a Node")
+    // }
 }
