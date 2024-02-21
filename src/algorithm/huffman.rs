@@ -6,8 +6,15 @@ pub struct Frequency {
     pub frequency: u16, // frequency is a value between 0 and 65536 and is equal to n/65536
     pub character: char,
 }
+impl Frequency {
+    pub fn get_frequency(&self) -> f64 {
+        (self.frequency as f64) / std::u16::MAX as f64
+    }
+}
 
-pub fn combine_nodes(mut frequency_nodes: Vec<(Tree<Frequency>, u16)>) -> Vec<(Tree<Frequency>, u16)>{
+pub fn combine_nodes(
+    mut frequency_nodes: Vec<(Tree<Frequency>, u16)>,
+) -> Vec<(Tree<Frequency>, u16)> {
     frequency_nodes.sort_by(|a, b| b.1.cmp(&a.1));
     let smallest = frequency_nodes
         .pop()

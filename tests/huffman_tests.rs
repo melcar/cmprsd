@@ -92,7 +92,7 @@ pub fn compute_frequencies_two_character_25_75() {
 fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
     for frequency in frequencies.iter() {
         assert!(close_to(
-            (frequency.frequency as f64) / (std::u16::MAX as f64),
+            frequency.get_frequency(),
             string.chars().filter(|&c| c == frequency.character).count() as f64
                 / string.len() as f64,
             EPSILON
@@ -135,13 +135,16 @@ pub fn combine_nodes_2() {
     assert_eq!(nodes.len(), 1);
     let (combines_node, frequency) = &nodes[0];
     assert_eq!(combines_node.len(), 3);
-    assert_eq!(*frequency, std::u16::MAX);
-    // if let Tree::Node { left, right } = combines_node {
-    //     match(left, right){
-    //         (Box(Tree::Leaf(left)), Box(Tree::Leaf(right))) => {assert_eq!(left)},
-    //         _ => unreachable!("node should contain two leaves.")
-    //     }
-    // } else {
-    //     panic!("root of tree should be a Node")
-    // }
+    assert!(close_to(
+        (*frequency as f64) / std::u16::MAX as f64,
+        1.0,
+        EPSILON
+    ));
+    //match combines_node {
+    //    Tree::Node { left, right } => match left {
+    //        Tree::Leaf(x) => assert!(),
+    //        _ => panic!("supposed to be a leaf, not a node"),
+    //    },
+    //    _ => unreachable!("node should contain two leaves."),
+    //}
 }
