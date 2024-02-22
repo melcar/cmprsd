@@ -12,10 +12,13 @@ impl Frequency {
     }
 }
 
+// take an huffman tree and create a map of character to encoding
+pub fn huffman_tree_to_map() {}
+
 pub fn combine_nodes(
-    mut frequency_nodes: Vec<(Tree<Frequency>, u16)>,
-) -> Vec<(Tree<Frequency>, u16)> {
-    frequency_nodes.sort_by(|a, b| b.1.cmp(&a.1));
+    mut frequency_nodes: Vec<(Tree<Frequency>, f64)>,
+) -> Vec<(Tree<Frequency>, f64)> {
+    frequency_nodes.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     let smallest = frequency_nodes
         .pop()
         .expect("binary tree shouls not be empty");
@@ -36,10 +39,10 @@ pub fn build_huffman_tree(frequencies: Vec<Frequency>) -> Tree<Frequency> {
         .copied()
         .map(Tree::Leaf)
         .map(|c| match c {
-            Tree::Leaf(f) => (c, f.frequency),
+            Tree::Leaf(f) => (c, f.get_frequency()),
             _ => unreachable!(),
         })
-        .collect::<Vec<(Tree<Frequency>, u16)>>();
+        .collect::<Vec<(Tree<Frequency>, f64)>>();
     for _ in 1..frequencies.len() {
         frequency_nodes = combine_nodes(frequency_nodes);
     }

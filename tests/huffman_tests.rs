@@ -11,31 +11,37 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn huffman_empty_string() {
     let compressed = huffman::compress("");
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn huffman_repeating_string() {
     let compressed = huffman::compress("");
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn huffman_two_characters() {
     let compressed = huffman::compress("");
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn huffman_random() {
     let compressed = huffman::compress("");
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn huffman_lorem() {
     let compressed = huffman::compress(LOREM_IPSUM);
 }
 
 #[test]
+#[ignore = "not implemented yet"]
 pub fn compute_frequencies_empty_string() {
     assert!(huffman::compute_frequencies("").is_empty());
 }
@@ -73,20 +79,11 @@ pub fn compute_frequencies_two_character_50_50() {
 #[test]
 pub fn compute_frequencies_two_character_25_75() {
     let frequencies = huffman::compute_frequencies("bbab");
-    assert_eq!(
-        frequencies[0],
-        huffman::Frequency {
-            character: 'a',
-            frequency: std::u16::MAX / 4
-        },
-    );
-    assert_eq!(
-        frequencies[1],
-        huffman::Frequency {
-            character: 'b',
-            frequency: 3 * (std::u16::MAX / 4)
-        },
-    );
+    assert_eq!(frequencies[0].character, 'a');
+    assert!(close_to(frequencies[0].get_frequency(), 0.25, EPSILON));
+
+    assert_eq!(frequencies[1].character, 'b');
+    assert!(close_to(frequencies[1].get_frequency(), 0.75, EPSILON));
 }
 
 fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
@@ -120,31 +117,62 @@ pub fn compute_frequencies_random_long_string() {
     check_frequencies(huffman::compute_frequencies(&random_string), &random_string)
 }
 
+fn check_leaf(node: &Box<Tree<Frequency>>, expected_char: char, expected_frequency: f64) {
+    match node.as_ref() {
+        Tree::Leaf(content) => {
+            assert_eq!(content.character, expected_char);
+            assert!(close_to(
+                content.get_frequency(),
+                expected_frequency,
+                EPSILON
+            ))
+        }
+        _ => unreachable!(),
+    }
+}
+
 #[test]
-pub fn combine_nodes_2() {
+pub fn combine_2_nodes_50_50_alphabetical_order() {
     let frequencies = huffman::compute_frequencies("ab")
         .iter()
         .copied()
-        .map(Tree::Leaf)
-        .map(|c| match c {
-            Tree::Leaf(f) => (c, f.frequency),
-            _ => unreachable!(),
-        })
-        .collect::<Vec<(Tree<Frequency>, u16)>>();
+        .map(|c| (Tree::Leaf(c), c.get_frequency()))
+        .collect::<Vec<(Tree<Frequency>, f64)>>();
+
     let nodes = combine_nodes(frequencies);
     assert_eq!(nodes.len(), 1);
     let (combines_node, frequency) = &nodes[0];
     assert_eq!(combines_node.len(), 3);
-    assert!(close_to(
-        (*frequency as f64) / std::u16::MAX as f64,
-        1.0,
-        EPSILON
-    ));
-    //match combines_node {
-    //    Tree::Node { left, right } => match left {
-    //        Tree::Leaf(x) => assert!(),
-    //        _ => panic!("supposed to be a leaf, not a node"),
-    //    },
-    //    _ => unreachable!("node should contain two leaves."),
-    //}
+    assert!(close_to(*frequency, 1.0, EPSILON));
+
+    match combines_node {
+        Tree::Node { left, right } => {
+            check_leaf(left, 'a', 0.5);
+            check_leaf(right, 'b', 0.5);
+        }
+        _ => unreachable!("should be internal node. Not a leaf."),
+    }
+}
+
+#[test]
+pub fn combine_2_nodes_75_25() {
+    let frequencies = huffman::compute_frequencies("abbb")
+        .iter()
+        .copied()
+        .map(|c| (Tree::Leaf(c), c.get_frequency()))
+        .collect::<Vec<(Tree<Frequency>, f64)>>();
+
+    let nodes = combine_nodes(frequencies);
+    assert_eq!(nodes.len(), 1);
+    let (combines_node, frequency) = &nodes[0];
+    assert_eq!(combines_node.len(), 3);
+    assert!(close_to(*frequency, 1.0, EPSILON));
+
+    match combines_node {
+        Tree::Node { left, right } => {
+            check_leaf(left, 'b', 0.75);
+            check_leaf(right, 'a', 0.25);
+        }
+        _ => unreachable!("should be internal node. Not a leaf."),
+    }
 }

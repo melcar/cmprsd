@@ -20,4 +20,8 @@ impl<T: std::cmp::Ord> Tree<T> {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    pub fn to_breadth_first_search(){
+        todo!("implement breadth first earch")
+    }
 }
