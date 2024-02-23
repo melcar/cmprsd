@@ -51,7 +51,7 @@ pub fn compute_frequencies_one_character() {
     assert_eq!(
         huffman::compute_frequencies("a")[0],
         huffman::Frequency {
-            character: 'a',
+            character: Some('a'),
             frequency: std::u16::MAX
         }
     )
@@ -63,14 +63,14 @@ pub fn compute_frequencies_two_character_50_50() {
     assert_eq!(
         frequencies[0],
         huffman::Frequency {
-            character: 'a',
+            character: Some('a'),
             frequency: std::u16::MAX / 2
         },
     );
     assert_eq!(
         frequencies[1],
         huffman::Frequency {
-            character: 'b',
+            character: Some('b'),
             frequency: std::u16::MAX / 2
         },
     );
@@ -79,10 +79,10 @@ pub fn compute_frequencies_two_character_50_50() {
 #[test]
 pub fn compute_frequencies_two_character_25_75() {
     let frequencies = huffman::compute_frequencies("bbab");
-    assert_eq!(frequencies[0].character, 'a');
+    assert_eq!(frequencies[0].character, Some('a'));
     assert!(close_to(frequencies[0].get_frequency(), 0.25, EPSILON));
 
-    assert_eq!(frequencies[1].character, 'b');
+    assert_eq!(frequencies[1].character, Some('b'));
     assert!(close_to(frequencies[1].get_frequency(), 0.75, EPSILON));
 }
 
@@ -90,7 +90,10 @@ fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
     for frequency in frequencies.iter() {
         assert!(close_to(
             frequency.get_frequency(),
-            string.chars().filter(|&c| c == frequency.character).count() as f64
+            string
+                .chars()
+                .filter(|&c| c == frequency.character.expect("should not be None"))
+                .count() as f64
                 / string.len() as f64,
             EPSILON
         ));
@@ -117,10 +120,10 @@ pub fn compute_frequencies_random_long_string() {
     check_frequencies(huffman::compute_frequencies(&random_string), &random_string)
 }
 
-fn check_leaf(node: &Box<Tree<Frequency>>, expected_char: char, expected_frequency: f64) {
-    match node.as_ref() {
+fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: f64) {
+    match node {
         Tree::Leaf(content) => {
-            assert_eq!(content.character, expected_char);
+            assert_eq!(content.character, Some(expected_char));
             assert!(close_to(
                 content.get_frequency(),
                 expected_frequency,
@@ -131,45 +134,65 @@ fn check_leaf(node: &Box<Tree<Frequency>>, expected_char: char, expected_frequen
     }
 }
 
+fn check_internal_node(
+    node: &Tree<Frequency>,
+    expected_content: Frequency,
+    expected_left_node: Tree<Frequency>,
+    expected_right_node: Tree<Frequency>,
+) {
+    match node {
+        Tree::Node {
+            content,
+            left,
+            right,
+        } => {
+            assert_eq!(*content, expected_content);
+            assert_eq!(*left.as_ref(), expected_left_node);
+            assert_eq!(*right.as_ref(), expected_right_node);
+        }
+        _ => unreachable!(),
+    }
+}
+
 #[test]
 pub fn combine_2_nodes_50_50_alphabetical_order() {
     let frequencies = huffman::compute_frequencies("ab")
-        .iter()
-        .copied()
-        .map(|c| (Tree::Leaf(c), c.get_frequency()))
-        .collect::<Vec<(Tree<Frequency>, f64)>>();
+        .into_iter()
+        .map(Tree::Leaf)
+        .collect();
 
     let nodes = combine_nodes(frequencies);
     assert_eq!(nodes.len(), 1);
-    let (combines_node, frequency) = &nodes[0];
+    let combines_node = &nodes[0];
     assert_eq!(combines_node.len(), 3);
-    assert!(close_to(*frequency, 1.0, EPSILON));
-
-    match combines_node {
-        Tree::Node { left, right } => {
-            check_leaf(left, 'a', 0.5);
-            check_leaf(right, 'b', 0.5);
-        }
-        _ => unreachable!("should be internal node. Not a leaf."),
-    }
+    assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
+    check_internal_node(
+        combines_node,
+        Frequency::build_frequency(std::u16::MAX - 1, None),
+        Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('b'))),
+        Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('a'))),
+    );
 }
 
 #[test]
 pub fn combine_2_nodes_75_25() {
     let frequencies = huffman::compute_frequencies("abbb")
-        .iter()
-        .copied()
-        .map(|c| (Tree::Leaf(c), c.get_frequency()))
-        .collect::<Vec<(Tree<Frequency>, f64)>>();
+        .into_iter()
+        .map(Tree::Leaf)
+        .collect();
 
     let nodes = combine_nodes(frequencies);
     assert_eq!(nodes.len(), 1);
-    let (combines_node, frequency) = &nodes[0];
+    let combines_node = &nodes[0];
     assert_eq!(combines_node.len(), 3);
-    assert!(close_to(*frequency, 1.0, EPSILON));
+    assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
 
     match combines_node {
-        Tree::Node { left, right } => {
+        Tree::Node {
+            content,
+            left,
+            right,
+        } => {
             check_leaf(left, 'b', 0.75);
             check_leaf(right, 'a', 0.25);
         }
