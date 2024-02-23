@@ -1,0 +1,13 @@
+
+*** These modified files were found in JOE when it aborted on Fri Feb 23 22:49:21 2024
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+/home/marcelbeltusperso/projects/cmprsd/.git/MERGE_MSG
+/home/marcelbeltusperso/projects/cmprsd/.git/MERGE_MSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
