@@ -27,7 +27,7 @@ impl<T: std::cmp::Ord> Tree<T> {
     }
 
     pub fn to_breadth_first_search() {
-        todo!("implement breadth first earch")
+        
     }
 
     pub fn build_internal_node(content: T, left: Tree<T>, right: Tree<T>) -> Tree<T> {
