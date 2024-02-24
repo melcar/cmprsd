@@ -13,8 +13,20 @@ impl Frequency {
             character,
         }
     }
+
     pub fn get_frequency(&self) -> f64 {
         (self.frequency as f64) / std::u16::MAX as f64
+    }
+
+    pub fn to_string(&self) -> String {
+        "(".to_string()
+            + &self.get_frequency().to_string()
+            + ","
+            + &(match self.character {
+                None => "None".to_string(),
+                Some(c) => c.to_string(),
+            })
+            + ")"
     }
 }
 
@@ -42,13 +54,18 @@ pub fn combine_nodes(mut frequency_nodes: Vec<Tree<Frequency>>) -> Vec<Tree<Freq
         .pop()
         .expect("binary tree should not be empty");
 
+    println!(
+        "building left and right frequencies: {}, {}",
+        smallest.get_value().to_string(),
+        second_smallest.get_value().to_string()
+    );
     let new_node = Tree::build_internal_node(
         Frequency {
             frequency: smallest.get_value().frequency + second_smallest.get_value().frequency,
             character: None,
         },
-        second_smallest,
         smallest,
+        second_smallest,
     );
     frequency_nodes.push(new_node);
     frequency_nodes
