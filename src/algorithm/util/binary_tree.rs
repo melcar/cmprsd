@@ -1,6 +1,11 @@
 //Naive binary tree implementation
-use std::cmp::Ordering::{Equal, Greater, Less};
 use std::collections::VecDeque;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Direction {
+    Left,
+    Right,
+}
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Tree<T: std::cmp::Ord + Copy> {
     Node {
@@ -74,6 +79,31 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
             bfs_nodes.push(*node.get_value());
         }
         bfs_nodes
+    }
+
+    pub fn leaf_paths(&self) -> Vec<(Vec<Direction>, T)> {
+        let mut visited_nodes: VecDeque<(Vec<Direction>, &Tree<T>)> = VecDeque::new();
+        visited_nodes.push_back((Vec::<Direction>::new(), self));
+        let mut nodes_codes = Vec::<(Vec<Direction>, T)>::new();
+        while !visited_nodes.is_empty() {
+            let (direction, node) = visited_nodes.pop_back().unwrap();
+            let mut left_direction = direction.clone();
+            left_direction.push(Direction::Left);
+            let mut right_direction = direction.clone();
+            right_direction.push(Direction::Right);
+            match node {
+                Tree::Node {
+                    content: _,
+                    left,
+                    right,
+                } => {
+                    visited_nodes.push_back((left_direction, left));
+                    visited_nodes.push_back((right_direction, right))
+                }
+                Tree::Leaf(n) => nodes_codes.push((direction, *n)),
+            }
+        }
+        nodes_codes
     }
 
     pub fn build_internal_node(content: T, left: Tree<T>, right: Tree<T>) -> Tree<T> {
