@@ -1,5 +1,6 @@
 use super::util::binary_tree::Tree;
-use std::collections::BTreeMap;
+use core::fmt;
+use std::{cmp::Ordering, collections::BTreeMap};
 
 #[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
 pub struct Frequency {
@@ -17,16 +18,19 @@ impl Frequency {
     pub fn get_frequency(&self) -> f64 {
         (self.frequency as f64) / std::u16::MAX as f64
     }
+}
 
-    pub fn to_string(&self) -> String {
-        "(".to_string()
-            + &self.get_frequency().to_string()
-            + ","
-            + &(match self.character {
+impl fmt::Display for Frequency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "({:.4},{})",
+            self.get_frequency(),
+            &(match self.character {
                 None => "None".to_string(),
                 Some(c) => c.to_string(),
             })
-            + ")"
+        )
     }
 }
 
@@ -46,19 +50,13 @@ impl Tree<Frequency> {
 pub fn huffman_tree_to_map() {}
 
 pub fn combine_nodes(mut frequency_nodes: Vec<Tree<Frequency>>) -> Vec<Tree<Frequency>> {
-    frequency_nodes.sort_by(|a, b| b.partial_cmp(a).unwrap());
+    frequency_nodes.sort_by(|a, b| b.cmp(a));
     let smallest = frequency_nodes
         .pop()
         .expect("binary tree shouls not be empty");
     let second_smallest = frequency_nodes
         .pop()
         .expect("binary tree should not be empty");
-
-    println!(
-        "building left and right frequencies: {}, {}",
-        smallest.get_value().to_string(),
-        second_smallest.get_value().to_string()
-    );
     let new_node = Tree::build_internal_node(
         Frequency {
             frequency: smallest.get_value().frequency + second_smallest.get_value().frequency,

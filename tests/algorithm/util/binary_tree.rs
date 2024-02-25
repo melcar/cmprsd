@@ -10,8 +10,10 @@ fn compare_bfs<T: std::cmp::Ord>(bfs: Vec<T>, expected_bfs: Vec<T>) {
 #[test]
 pub fn binary_tree_bfs_1_node() {
     let tree = Tree::<u16>::Leaf(0);
+    assert_eq!(tree.height(), 1);
     let bfs = tree.to_breadth_first_search();
     let expected_bfs: Vec<u16> = vec![1];
+    compare_bfs(bfs, expected_bfs)
 }
 
 #[test]
@@ -23,8 +25,9 @@ pub fn binary_tree_bfs_3_node() {
         left: Box::new(left_node),
         right: Box::new(right_node),
     };
+    assert_eq!(tree.height(), 2);
     let bfs = tree.to_breadth_first_search();
-    let expected_bfs: Vec<u16> = vec![0,1,2];
+    let expected_bfs: Vec<u16> = vec![0, 1, 2];
     compare_bfs(bfs, expected_bfs)
 }
 
@@ -38,13 +41,14 @@ pub fn binary_tree_bfs_4_node() {
         right: Box::new(l1_right_node),
     };
     let l0_right_node = Tree::<u16>::Leaf(2);
-    let root = Tree::<u16>::Node{
+    let tree = Tree::<u16>::Node {
         content: 0,
         left: Box::new(l0_left_node),
-        right: Box::new(l0_right_node)
+        right: Box::new(l0_right_node),
     };
-    let bfs =root.to_breadth_first_search();
-    let expected_bfs: Vec<u16> = vec![0,1,2,3,4];
+    assert_eq!(tree.height(), 3);
+    let bfs = tree.to_breadth_first_search();
+    let expected_bfs: Vec<u16> = vec![0, 1, 2, 3, 4];
     compare_bfs(bfs, expected_bfs)
 }
 
@@ -58,12 +62,13 @@ pub fn binary_tree_bfs_4_node_symmetric() {
         right: Box::new(l1_right_node),
     };
     let l0_left_node = Tree::<u16>::Leaf(2);
-    let root = Tree::<u16>::Node{
+    let tree = Tree::<u16>::Node {
         content: 0,
         left: Box::new(l0_left_node),
-        right: Box::new(l0_right_node)
+        right: Box::new(l0_right_node),
     };
-    let bfs =root.to_breadth_first_search();
-    let expected_bfs: Vec<u16> = vec![0,2,1,3,4];
+    assert_eq!(tree.height(), 3);
+    let bfs = tree.to_breadth_first_search();
+    let expected_bfs: Vec<u16> = vec![0, 2, 1, 3, 4];
     compare_bfs(bfs, expected_bfs)
 }

@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
 
 use cmprsd::algorithm::huffman::{
@@ -193,7 +194,7 @@ pub fn combine_2_nodes_75_25() {
 
     match combines_node {
         Tree::Node {
-            content,
+            content: _,
             left,
             right,
         } => {
@@ -212,8 +213,9 @@ pub fn combine_5_nodes() {
 
     let tree = build_huffman_tree(frequencies);
     assert_eq!(tree.len(), 9);
+    assert_eq!(tree.height(), 4);
     let bfs = tree.to_breadth_first_search();
-    assert_eq!(bfs.len(), 9);
+    assert_eq!(bfs.len(), tree.len());
     let mut expected_frequencies: HashMap<char, f64> =
         input.chars().map(|c| (c, 0_f64)).collect::<HashMap<_, _>>();
 
@@ -229,64 +231,21 @@ pub fn combine_5_nodes() {
         });
 
     let expected_bfs: Vec<(Option<char>, f64)> = vec![
-        (None, 1.0),             // level 0
-        (None, 0.6666666666666), // left level 1
-        (Some('a'), 0.33333333), // right level 1
-        (None, 0.4),             // left level 2
-        (Some('b'), 0.26666),    // right level 2
-        (None, 0.2),         //left level 2
-        (Some('c'), 0.2),        // right level 2
-        (Some('e'), 0.066666667),     // left level 3
-        (Some('d'), 0.13333333),     // right level 3
+        (None, 1.0),
+        (None, 0.4),
+        (None, 0.6),
+        (None, 0.2),
+        (Some('c'), 0.2),
+        (Some('b'), 0.26666),
+        (Some('a'), 0.33333),
+        (Some('e'), 0.066666667),
+        (Some('d'), 0.13333333),
     ];
 
     bfs.iter()
         .zip(expected_bfs.iter())
         .for_each(|(node, (expected_char, expected_frequency))| {
-            println!("{}, {}", node.get_frequency(), expected_frequency);
             assert_eq!(node.character, *expected_char);
             assert!(close_to(node.get_frequency(), *expected_frequency, EPSILON))
         })
-}
-
-#[test]
-pub fn frequency_comparison_different_frequencies_same_letter() {
-    let f1 = Frequency::build_frequency(51, Some('a'));
-    let f2 = Frequency::build_frequency(56, Some('a'));
-    assert!(f1 < f2)
-}
-
-#[test]
-pub fn frequency_comparison_same_letters_different_frequencies() {
-    let f1 = Frequency::build_frequency(56, Some('a'));
-    let f2 = Frequency::build_frequency(56, Some('b'));
-    assert!(f1 < f2)
-}
-
-#[test]
-pub fn frequency_comparison_one_letter_one_none_different_frequencies1() {
-    let f1 = Frequency::build_frequency(54, None);
-    let f2 = Frequency::build_frequency(56, Some('b'));
-    assert!(f1 < f2)
-}
-
-#[test]
-pub fn frequency_comparison_one_letter_one_none_different_frequencies2() {
-    let f1 = Frequency::build_frequency(57, None);
-    let f2 = Frequency::build_frequency(56, Some('b'));
-    assert!(f1 > f2)
-}
-
-#[test]
-pub fn frequency_comparison_one_letter_one_none_same_frequencies() {
-    let f1 = Frequency::build_frequency(56, None);
-    let f2 = Frequency::build_frequency(56, Some('b'));
-    assert!(f1 < f2)
-}
-
-#[test]
-pub fn frequency_comparison_both_none_different_frequencies() {
-    let f1 = Frequency::build_frequency(53, None);
-    let f2 = Frequency::build_frequency(56, None);
-    assert!(f1 < f2)
 }

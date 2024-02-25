@@ -1,13 +1,26 @@
 //Naive binary tree implementation
-use std::{collections::VecDeque, ops::Deref};
-#[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone)]
+use std::cmp::Ordering::{Equal, Greater, Less};
+use std::collections::VecDeque;
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Tree<T: std::cmp::Ord + Copy> {
     Node {
         content: T,
-        left: Box<Tree<T>>,//should be optionals
+        left: Box<Tree<T>>, //should be optionals
         right: Box<Tree<T>>,
     },
     Leaf(T),
+}
+
+impl<T: std::cmp::Ord + Copy> PartialOrd for Tree<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl<T: std::cmp::Ord + Copy> Ord for Tree<T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.get_value().cmp(other.get_value())
+    }
 }
 
 impl<T: std::cmp::Ord + Copy> Tree<T> {
@@ -19,6 +32,17 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
                 left,
                 right,
             } => 1 + left.len() + right.len(),
+        }
+    }
+
+    pub fn height(&self) -> usize {
+        match self {
+            Tree::Leaf(_) => 1,
+            Tree::Node {
+                content: _,
+                left,
+                right,
+            } => 1 + std::cmp::max(left.height(), right.height()),
         }
     }
 
