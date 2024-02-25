@@ -1,5 +1,5 @@
 //Naive binary tree implementation
-use std::collections::VecDeque;
+use std::{collections::VecDeque, ops::Deref};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
@@ -122,6 +122,38 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
                 left: _,
                 right: _,
             } => content,
+        }
+    }
+
+    pub fn get_all_values(&self) -> Vec<T> {
+        match self {
+            Tree::Leaf(n) => vec![*n],
+            Tree::Node {
+                content,
+                left,
+                right,
+            } => {
+                let mut all_values = vec![*content];
+                all_values.append(&mut left.get_all_values());
+                all_values.append(&mut right.get_all_values());
+                all_values
+            }
+        }
+    }
+
+    pub fn get_value_from_directions(&self, direction: Direction) -> Option<&Tree<T>> {
+        if let Tree::Node {
+            content: _,
+            left,
+            right,
+        } = self
+        {
+            match direction {
+                Direction::Left => Some(left),
+                Direction::Right => Some(right),
+            }
+        } else {
+            None
         }
     }
 }

@@ -15,22 +15,25 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
     (a - b).abs() < delta
 }
 
+fn test_compression_decompression(data: &str) {
+    let compressed_data = huffman::compress(data);
+    let decompressed_data = huffman::decompress(&compressed_data);
+    assert_eq!(data, decompressed_data);
+}
+
 #[test]
-#[ignore = "not implemented yet"]
 pub fn huffman_empty_string() {
-    let compressed = huffman::compress("");
+    test_compression_decompression("")
 }
 
 #[test]
-#[ignore = "not implemented yet"]
 pub fn huffman_repeating_string() {
-    let compressed = huffman::compress("");
+    test_compression_decompression("ababababababab");
 }
 
 #[test]
-#[ignore = "not implemented yet"]
 pub fn huffman_two_characters() {
-    let compressed = huffman::compress("");
+    test_compression_decompression("ab")
 }
 
 #[test]
@@ -40,13 +43,16 @@ pub fn huffman_random() {
 }
 
 #[test]
-#[ignore = "not implemented yet"]
-pub fn huffman_lorem() {
-    let compressed = huffman::compress(LOREM_IPSUM);
+pub fn huffman_hello_world() {
+    test_compression_decompression("Hello world!");
 }
 
 #[test]
-#[ignore = "not implemented yet"]
+pub fn huffman_lorem() {
+    test_compression_decompression(LOREM_IPSUM);
+}
+
+#[test]
 pub fn compute_frequencies_empty_string() {
     assert!(huffman::compute_frequencies("").is_empty());
 }
