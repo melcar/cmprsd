@@ -1,10 +1,28 @@
-use super::util::binary_tree::Tree;
+use crate::algorithm::huffman;
+
+use super::util::binary_tree::{
+    Direction,
+    Direction::{Left, Right},
+    Tree,
+};
 use core::fmt;
-use std::{cmp::Ordering, collections::BTreeMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    io::Cursor,
+};
+
+pub enum Huffman {
+    Encoded {
+        frequencies: HashMap<char, Vec<Direction>>,
+        encoded: Vec<u8>, //type should be variable depending on number of different character possible
+        cursor: u8,       // how many bits do discard in the last byte we read
+    },
+}
 
 #[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
 pub struct Frequency {
     pub frequency: u16, // frequency is a value between 0 and 65536 and is equal to n/65536
+    // I could just have total count instead of frequency actually
     pub character: Option<char>,
 }
 impl Frequency {
@@ -82,13 +100,6 @@ pub fn build_huffman_tree(frequencies: Vec<Frequency>) -> Tree<Frequency> {
     frequency_nodes[0].clone()
 }
 
-pub enum Huffman {
-    Encoded {
-        frequencies: Tree<Frequency>,
-        encoded: String,
-    },
-}
-
 pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     let mut char_counts: BTreeMap<char, usize> = BTreeMap::new();
     data.chars().for_each(|c| {
@@ -102,9 +113,65 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
 }
 
 pub fn compress(data: &str) -> crate::huffman::Huffman {
-    todo!("todo")
+    //mapping of char to encoded value. as string for now
+    let mut to_compressed: HashMap<char, Vec<Direction>> = HashMap::new();
+    build_huffman_tree(compute_frequencies(data))
+        .leaf_paths()
+        .iter()
+        .for_each(|(directions, node)| {
+            to_compressed.insert(
+                node.character
+                    .expect("Leaves of humman tree should all contain a character."),
+                directions.clone(),
+            );
+        });
+    let mut compressed_message = data
+        .chars()
+        .map(|character| {
+            to_compressed
+                .get(&character)
+                .expect("encoded character should be part of the huffman tree.")
+        })
+        .fold(
+            (Vec::<u8>::new(), 0_u8),
+            |(compressed_data, cursor), directions| {
+                let mut cursor = cursor;
+                let mut compressed_data = compressed_data.clone();
+                directions.iter().for_each(|direction| {
+                    if cursor == 8 {
+                        cursor = 0;
+                        compressed_data.push(0);
+                    }
+                    let mut current_byte = *compressed_data
+                        .last()
+                        .expect("compressed data is not empty.");
+                    current_byte <<= 1;
+                    match *direction {
+                        Left => current_byte |= 1_u8,
+                        Right => (),
+                    }
+                    cursor += 1;
+                    *compressed_data.last_mut().unwrap() = current_byte;
+                });
+                (compressed_data, cursor)
+            },
+        );
+    *compressed_message.0.last_mut().unwrap() =
+        compressed_message.0.last().unwrap() << (8 - compressed_message.1);
+    Huffman::Encoded {
+        frequencies: to_compressed,
+        encoded: compressed_message.0,
+        cursor: compressed_message.1,
+    }
 }
 
-pub fn decompress(encoded: &Huffman) -> String {
-    todo!("todo")
+pub fn decompress(compressed: &Huffman) -> String {
+    let Huffman::Encoded {
+        frequencies,
+        encoded,
+        cursor,
+    } = compressed;
+    //let reversed_map: HashMap<Vec<Direction>, char> =
+      //        frequencies.iter().map(|(&k, v)| (v.clone(), k)).collect();
+    todo!();
 }
