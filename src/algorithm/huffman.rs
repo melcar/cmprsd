@@ -207,7 +207,7 @@ pub fn decompress(compressed: &Huffman) -> String {
     } = compressed;
     let tree = build_huffman_tree(frequencies.to_owned());
     let mut directions: Vec<Direction>;
-    if compressed.len() > 2 {
+    if compressed.len() >= 2 {
         directions = compressed[0..=compressed.len() - 2]
             .iter()
             .flat_map(|byte| bytes_to_direction(byte, &8))

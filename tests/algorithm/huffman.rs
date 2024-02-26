@@ -135,6 +135,13 @@ fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
 }
 
 #[test]
+pub fn compute_frequencies_repeating_string(){
+    let data = "ababababababab";
+    let frequencies = compute_frequencies(data);
+    check_frequencies(frequencies, data)
+}
+
+#[test]
 pub fn compute_frequencies_lorem_ipsum() {
     check_frequencies(huffman::compute_frequencies(LOREM_IPSUM), LOREM_IPSUM);
 }
