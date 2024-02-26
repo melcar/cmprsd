@@ -114,8 +114,11 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     }))
 }
 
-pub fn compress(data: &str) -> crate::huffman::Huffman {
+pub fn compress(data: &str) -> Result<crate::huffman::Huffman, ()> {
     //mapping of char to encoded value. as string for now
+    if data.is_empty() {
+        return Err(());
+    }
     let mut to_compressed: HashMap<char, Vec<Direction>> = HashMap::new();
     let frequencies = compute_frequencies(data);
     build_huffman_tree(frequencies.clone())
@@ -159,11 +162,11 @@ pub fn compress(data: &str) -> crate::huffman::Huffman {
         });
     *compressed_message.0.last_mut().unwrap() =
         compressed_message.0.last().unwrap() << (8 - compressed_message.1);
-    Huffman::Encoded {
+    Ok(Huffman::Encoded {
         frequencies,
         compressed: compressed_message.0,
         cursor: compressed_message.1,
-    }
+    })
 }
 
 pub fn bytes_to_direction(byte: &u8, cursor: &u8) -> Vec<Direction> {

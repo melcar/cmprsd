@@ -19,7 +19,7 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
 
 fn test_compression_decompression(data: &str) {
     let compressed_data = huffman::compress(data);
-    let decompressed_data = huffman::decompress(&compressed_data);
+    let decompressed_data = huffman::decompress(&compressed_data.expect("should not fail"));
     assert_eq!(data.len(), decompressed_data.len());
     assert_eq!(data, decompressed_data);
 }
@@ -34,7 +34,7 @@ fn test_from_file(path: &str) -> std::io::Result<()> {
 
 #[test]
 pub fn huffman_empty_string() {
-    test_compression_decompression("")
+    assert!(huffman::compress("").is_err())
 }
 
 #[test]
@@ -50,7 +50,7 @@ pub fn huffman_two_characters() {
 #[test]
 #[ignore = "not implemented yet"]
 pub fn huffman_random() {
-    let compressed = huffman::compress("");
+    huffman::compress("");
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
 }
 
 #[test]
-pub fn compute_frequencies_repeating_string(){
+pub fn compute_frequencies_repeating_string() {
     let data = "ababababababab";
     let frequencies = compute_frequencies(data);
     check_frequencies(frequencies, data)
