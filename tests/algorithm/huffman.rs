@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
+use std::fs::File;
+use std::io::Read;
 
 use cmprsd::algorithm::huffman::{
     self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency, Huffman,
@@ -18,7 +20,17 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
 fn test_compression_decompression(data: &str) {
     let compressed_data = huffman::compress(data);
     let decompressed_data = huffman::decompress(&compressed_data);
+    assert_eq!(data.len(), decompressed_data.len());
     assert_eq!(data, decompressed_data);
+}
+
+fn test_from_file(path: &str) -> std::io::Result<()> {
+    let mut file = File::open(path)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    println!("{},    {}", contents.len(), contents);
+    test_compression_decompression(&contents);
+    Ok(())
 }
 
 #[test]
@@ -50,6 +62,18 @@ pub fn huffman_hello_world() {
 #[test]
 pub fn huffman_lorem() {
     test_compression_decompression(LOREM_IPSUM);
+}
+
+#[test]
+pub fn huffman_japanese_book() {
+    let path = "ressources/text/あめりか物語 by Kafu Nagai";
+    test_from_file(path).err();
+}
+
+#[test]
+pub fn huffman_proust() {
+    let path = "ressources/text/Du côté de chez Swann by Marcel Proust";
+    test_from_file(path).err();
 }
 
 #[test]
