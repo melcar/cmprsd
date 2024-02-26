@@ -49,7 +49,7 @@ fn compressing_proust(c: &mut Criterion) {
 
 fn decompressing_hello_world(c: &mut Criterion) {
     let text = "Hello world!";
-    let compressed_text = huffman::compress(text);
+    let compressed_text = huffman::compress(text).expect("");
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
     group.bench_function("Decompressing Hello worlds", |b| {
@@ -59,7 +59,7 @@ fn decompressing_hello_world(c: &mut Criterion) {
 
 fn decompressing_Lorem_Ipsum(c: &mut Criterion) {
     let text = LOREM_IPSUM;
-    let compressed_text = huffman::compress(text);
+    let compressed_text = huffman::compress(text).expect("");
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
     group.bench_function("Decompressing Lorem Ipsum", |b| {
@@ -70,7 +70,7 @@ fn decompressing_Lorem_Ipsum(c: &mut Criterion) {
 fn decompressing_japanese_author(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
-    let compressed_text = huffman::compress(&text);
+    let compressed_text = huffman::compress(&text).expect("");
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
     group.bench_function("Decompressing japanse author", |b| {
@@ -81,7 +81,7 @@ fn decompressing_japanese_author(c: &mut Criterion) {
 fn decompressing_proust(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
-    let compressed_text = huffman::compress(&text);
+    let compressed_text = huffman::compress(&text).expect("");
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
     group.bench_function("Decompressing Proust", |b| {
