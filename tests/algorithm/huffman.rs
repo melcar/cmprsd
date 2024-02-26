@@ -28,7 +28,6 @@ fn test_from_file(path: &str) -> std::io::Result<()> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    println!("{},    {}", contents.len(), contents);
     test_compression_decompression(&contents);
     Ok(())
 }
