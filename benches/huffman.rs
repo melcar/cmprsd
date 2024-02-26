@@ -17,7 +17,7 @@ fn compressing_hello_world(c: &mut Criterion) {
     let text = "Hello world!";
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
-    group.bench_function("Hello worlds", |b| {
+    group.bench_function("Compressing Hello worlds", |b| {
         b.iter(|| huffman::compress(black_box(text)))
     });
 }
@@ -26,17 +26,9 @@ fn compressing_Lorem_Ipsum(c: &mut Criterion) {
     let text = LOREM_IPSUM;
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
-    group.bench_function("Lorem Ipsum", |b| {
+    group.bench_function("Compressing Lorem Ipsum", |b| {
         b.iter(|| huffman::compress(black_box(text)))
     });
-}
-
-fn compressing_proust(c: &mut Criterion) {
-    let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
-        .expect("file should be found");
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
-    group.bench_function("Proust", |b| b.iter(|| huffman::compress(black_box(&text))));
 }
 
 fn compressing_japanese_author(c: &mut Criterion) {
@@ -44,7 +36,15 @@ fn compressing_japanese_author(c: &mut Criterion) {
         .expect("file should be found");
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
-    group.bench_function("Proust", |b| b.iter(|| huffman::compress(black_box(&text))));
+    group.bench_function("Compressing japanese author", |b| b.iter(|| huffman::compress(black_box(&text))));
+}
+
+fn compressing_proust(c: &mut Criterion) {
+    let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
+        .expect("file should be found");
+    let mut group = c.benchmark_group("10 samples");
+    group.sample_size(10);
+    group.bench_function("Compressing Proust", |b| b.iter(|| huffman::compress(black_box(&text))));
 }
 
 fn decompressing_hello_world(c: &mut Criterion) {
@@ -52,7 +52,7 @@ fn decompressing_hello_world(c: &mut Criterion) {
     let compressed_text = huffman::compress(text);
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
-    group.bench_function("Hello worlds", |b| {
+    group.bench_function("Decompressing Hello worlds", |b| {
         b.iter(|| huffman::decompress(black_box(&compressed_text)))
     });
 }
@@ -62,18 +62,7 @@ fn decompressing_Lorem_Ipsum(c: &mut Criterion) {
     let compressed_text = huffman::compress(text);
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
-    group.bench_function("Lorem Ipsum", |b| {
-        b.iter(|| huffman::decompress(black_box(&compressed_text)))
-    });
-}
-
-fn decompressing_proust(c: &mut Criterion) {
-    let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
-        .expect("file should be found");
-    let compressed_text = huffman::compress(&text);
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
-    group.bench_function("Proust", |b| {
+    group.bench_function("Decompressing Lorem Ipsum", |b| {
         b.iter(|| huffman::decompress(black_box(&compressed_text)))
     });
 }
@@ -84,7 +73,18 @@ fn decompressing_japanese_author(c: &mut Criterion) {
     let compressed_text = huffman::compress(&text);
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
-    group.bench_function("Proust", |b| {
+    group.bench_function("Decompressing japanse author", |b| {
+        b.iter(|| huffman::decompress(black_box(&compressed_text)))
+    });
+}
+
+fn decompressing_proust(c: &mut Criterion) {
+    let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
+        .expect("file should be found");
+    let compressed_text = huffman::compress(&text);
+    let mut group = c.benchmark_group("10 samples");
+    group.sample_size(10);
+    group.bench_function("Decompressing Proust", |b| {
         b.iter(|| huffman::decompress(black_box(&compressed_text)))
     });
 }
