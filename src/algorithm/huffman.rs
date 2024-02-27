@@ -1,15 +1,10 @@
-use crate::algorithm::huffman;
-
 use super::util::binary_tree::{
     Direction,
     Direction::{Left, Right},
     Tree,
 };
 use core::fmt;
-use std::{
-    collections::{BTreeMap, HashMap},
-    io::Cursor,
-};
+use std::collections::{BTreeMap, HashMap};
 
 pub enum Huffman {
     Encoded {
@@ -19,12 +14,16 @@ pub enum Huffman {
     },
 }
 
+#[derive(Debug, Clone)]
+pub struct CompressionError;
+
 #[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
 pub struct Frequency {
     pub frequency: u16, // frequency is a value between 0 and 65536 and is equal to n/65536
     // I could just have total count instead of frequency actually
     pub character: Option<char>,
 }
+
 impl Frequency {
     pub fn build_frequency(frequency: u16, character: Option<char>) -> Frequency {
         Frequency {
@@ -114,10 +113,10 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     }))
 }
 
-pub fn compress(data: &str) -> Result<crate::huffman::Huffman, ()> {
+pub fn compress(data: &str) -> Result<crate::huffman::Huffman, CompressionError> {
     //mapping of char to encoded value. as string for now
     if data.is_empty() {
-        return Err(());
+        return Err(CompressionError);
     }
     let mut to_compressed: HashMap<char, Vec<Direction>> = HashMap::new();
     let frequencies = compute_frequencies(data);

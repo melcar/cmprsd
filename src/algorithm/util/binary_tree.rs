@@ -1,5 +1,5 @@
 //Naive binary tree implementation
-use std::{collections::VecDeque, ops::Deref};
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
@@ -64,16 +64,14 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
                 .pop_front()
                 .expect("can't be empty at this point");
 
-            match node {
-                Tree::Node {
-                    content: _,
-                    left,
-                    right,
-                } => {
-                    visited_nodes.push_back(left);
-                    visited_nodes.push_back(right)
-                }
-                _ => (),
+            if let Tree::Node {
+                content: _,
+                left,
+                right,
+            } = node
+            {
+                visited_nodes.push_back(left);
+                visited_nodes.push_back(right)
             }
 
             bfs_nodes.push(*node.get_value());

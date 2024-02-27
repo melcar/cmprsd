@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use cmprsd::algorithm::huffman::{self, compress, decompress};
+use cmprsd::algorithm::huffman::{self};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::io::Read;
 
@@ -22,7 +22,7 @@ fn compressing_hello_world(c: &mut Criterion) {
     });
 }
 
-fn compressing_Lorem_Ipsum(c: &mut Criterion) {
+fn compressing_lorem_ipsum(c: &mut Criterion) {
     let text = LOREM_IPSUM;
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
@@ -36,7 +36,9 @@ fn compressing_japanese_author(c: &mut Criterion) {
         .expect("file should be found");
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
-    group.bench_function("Compressing japanese author", |b| b.iter(|| huffman::compress(black_box(&text))));
+    group.bench_function("Compressing japanese author", |b| {
+        b.iter(|| huffman::compress(black_box(&text)))
+    });
 }
 
 fn compressing_proust(c: &mut Criterion) {
@@ -44,7 +46,9 @@ fn compressing_proust(c: &mut Criterion) {
         .expect("file should be found");
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
-    group.bench_function("Compressing Proust", |b| b.iter(|| huffman::compress(black_box(&text))));
+    group.bench_function("Compressing Proust", |b| {
+        b.iter(|| huffman::compress(black_box(&text)))
+    });
 }
 
 fn decompressing_hello_world(c: &mut Criterion) {
@@ -57,7 +61,7 @@ fn decompressing_hello_world(c: &mut Criterion) {
     });
 }
 
-fn decompressing_Lorem_Ipsum(c: &mut Criterion) {
+fn decompressing_lorem_ipsum(c: &mut Criterion) {
     let text = LOREM_IPSUM;
     let compressed_text = huffman::compress(text).expect("");
     let mut group = c.benchmark_group("100 samples");
@@ -92,11 +96,11 @@ fn decompressing_proust(c: &mut Criterion) {
 criterion_group!(
     benches,
     compressing_hello_world,
-    compressing_Lorem_Ipsum,
+    compressing_lorem_ipsum,
     compressing_japanese_author,
     compressing_proust,
     decompressing_hello_world,
-    decompressing_Lorem_Ipsum,
+    decompressing_lorem_ipsum,
     decompressing_japanese_author,
     decompressing_proust
 );

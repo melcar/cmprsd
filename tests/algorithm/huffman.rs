@@ -1,10 +1,9 @@
-use std::cmp::Ordering;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
 use cmprsd::algorithm::huffman::{
-    self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency, Huffman,
+    self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency,
 };
 use cmprsd::algorithm::util::binary_tree::Tree;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
@@ -50,7 +49,7 @@ pub fn huffman_two_characters() {
 #[test]
 #[ignore = "not implemented yet"]
 pub fn huffman_random() {
-    huffman::compress("");
+    huffman::compress("").expect("compression should not fail");
 }
 
 #[test]
