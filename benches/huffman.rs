@@ -89,7 +89,7 @@ fn decompressing_proust(c: &mut Criterion) {
     let mut group = c.benchmark_group("10 samples");
     group.sample_size(10);
     group.bench_function("Decompressing Proust", |b| {
-        b.iter(||black_box(compressed_text.decompress()))
+        b.iter(|| black_box(compressed_text.decompress()))
     });
 }
 
