@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Read;
 
 use cmprsd::algorithm::huffman::{
-    self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency,
+    self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency, Huffman,
 };
 use cmprsd::algorithm::util::binary_tree::Tree;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
@@ -17,8 +17,8 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
 }
 
 fn test_compression_decompression(data: &str) {
-    let compressed_data = huffman::compress(data);
-    let decompressed_data = huffman::decompress(&compressed_data.expect("should not fail"));
+    let compressed_data = Huffman::compress(data).expect("data should compress");
+    let decompressed_data = compressed_data.decompress();
     assert_eq!(data.len(), decompressed_data.len());
     assert_eq!(data, decompressed_data);
 }
@@ -33,7 +33,7 @@ fn test_from_file(path: &str) -> std::io::Result<()> {
 
 #[test]
 pub fn huffman_empty_string() {
-    assert!(huffman::compress("").is_err())
+    assert!(Huffman::compress("").is_err())
 }
 
 #[test]
@@ -49,7 +49,7 @@ pub fn huffman_two_characters() {
 #[test]
 #[ignore = "not implemented yet"]
 pub fn huffman_random() {
-    huffman::compress("").expect("compression should not fail");
+    Huffman::compress("").expect("compression should not fail");
 }
 
 #[test]

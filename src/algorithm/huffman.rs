@@ -7,11 +7,91 @@ use core::fmt;
 use std::collections::{BTreeMap, HashMap};
 
 pub enum Huffman {
-    Encoded {
+    Compressed {
         frequencies: Vec<Frequency>,
         compressed: Vec<u8>, //type should be variable depending on number of different character possible
         cursor: u8,          // how many bits do discard in the last byte we read
     },
+}
+
+impl Huffman {
+    pub fn compress(data: &str) -> Result<crate::huffman::Huffman, CompressionError> {
+        //mapping of char to Compressed value. as string for now
+        if data.is_empty() {
+            return Err(CompressionError);
+        }
+        let mut to_compressed: HashMap<char, Vec<Direction>> = HashMap::new();
+        let frequencies = compute_frequencies(data);
+        build_huffman_tree(frequencies.clone())
+            .leaf_paths()
+            .iter()
+            .for_each(|(directions, node)| {
+                to_compressed.insert(
+                    node.character
+                        .expect("Leaves of humman tree should all contain a character."),
+                    directions.clone(),
+                );
+            });
+
+        let mut compressed_message = data
+            .chars()
+            .map(|character| {
+                to_compressed
+                    .get(&character)
+                    .expect("Compressed character should be part of the huffman tree.")
+            })
+            .fold((vec![0], 0_u8), |(compressed_data, cursor), directions| {
+                let mut cursor = cursor;
+                let mut compressed_data = compressed_data.clone();
+                directions.iter().for_each(|direction| {
+                    if cursor == 8 {
+                        cursor = 0;
+                        compressed_data.push(0);
+                    }
+                    let mut current_byte = *compressed_data
+                        .last()
+                        .expect("compressed data is not empty.");
+                    current_byte <<= 1;
+                    match *direction {
+                        Left => current_byte |= 1_u8,
+                        Right => (),
+                    };
+                    cursor += 1;
+                    *compressed_data.last_mut().unwrap() = current_byte;
+                });
+                (compressed_data, cursor)
+            });
+        *compressed_message.0.last_mut().unwrap() =
+            compressed_message.0.last().unwrap() << (8 - compressed_message.1);
+        Ok(Huffman::Compressed {
+            frequencies,
+            compressed: compressed_message.0,
+            cursor: compressed_message.1,
+        })
+    }
+
+    pub fn decompress(&self) -> String {
+        let Huffman::Compressed {
+            frequencies,
+            compressed,
+            cursor,
+        } = self;
+        let tree = build_huffman_tree(frequencies.to_owned());
+        let mut directions: Vec<Direction>;
+        if compressed.len() >= 2 {
+            directions = compressed[0..=compressed.len() - 2]
+                .iter()
+                .flat_map(|byte| bytes_to_direction(byte, &8))
+                .collect();
+        } else {
+            directions = Vec::new();
+        }
+        directions.append(&mut bytes_to_direction(
+            compressed.last().expect("should hold data to uncompress"),
+            cursor,
+        ));
+        directions_to_string(directions, &tree)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -113,61 +193,6 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     }))
 }
 
-pub fn compress(data: &str) -> Result<crate::huffman::Huffman, CompressionError> {
-    //mapping of char to encoded value. as string for now
-    if data.is_empty() {
-        return Err(CompressionError);
-    }
-    let mut to_compressed: HashMap<char, Vec<Direction>> = HashMap::new();
-    let frequencies = compute_frequencies(data);
-    build_huffman_tree(frequencies.clone())
-        .leaf_paths()
-        .iter()
-        .for_each(|(directions, node)| {
-            to_compressed.insert(
-                node.character
-                    .expect("Leaves of humman tree should all contain a character."),
-                directions.clone(),
-            );
-        });
-
-    let mut compressed_message = data
-        .chars()
-        .map(|character| {
-            to_compressed
-                .get(&character)
-                .expect("encoded character should be part of the huffman tree.")
-        })
-        .fold((vec![0], 0_u8), |(compressed_data, cursor), directions| {
-            let mut cursor = cursor;
-            let mut compressed_data = compressed_data.clone();
-            directions.iter().for_each(|direction| {
-                if cursor == 8 {
-                    cursor = 0;
-                    compressed_data.push(0);
-                }
-                let mut current_byte = *compressed_data
-                    .last()
-                    .expect("compressed data is not empty.");
-                current_byte <<= 1;
-                match *direction {
-                    Left => current_byte |= 1_u8,
-                    Right => (),
-                };
-                cursor += 1;
-                *compressed_data.last_mut().unwrap() = current_byte;
-            });
-            (compressed_data, cursor)
-        });
-    *compressed_message.0.last_mut().unwrap() =
-        compressed_message.0.last().unwrap() << (8 - compressed_message.1);
-    Ok(Huffman::Encoded {
-        frequencies,
-        compressed: compressed_message.0,
-        cursor: compressed_message.1,
-    })
-}
-
 pub fn bytes_to_direction(byte: &u8, cursor: &u8) -> Vec<Direction> {
     let mut directions: Vec<Direction> = Vec::new();
     (1..=*cursor).for_each(|i| match (byte >> (8_u8 - i)) % 2 {
@@ -199,27 +224,4 @@ pub fn directions_to_string(directions: Vec<Direction>, root: &Tree<Frequency>) 
             },
         )
         .0
-}
-
-pub fn decompress(compressed: &Huffman) -> String {
-    let Huffman::Encoded {
-        frequencies,
-        compressed,
-        cursor,
-    } = compressed;
-    let tree = build_huffman_tree(frequencies.to_owned());
-    let mut directions: Vec<Direction>;
-    if compressed.len() >= 2 {
-        directions = compressed[0..=compressed.len() - 2]
-            .iter()
-            .flat_map(|byte| bytes_to_direction(byte, &8))
-            .collect();
-    } else {
-        directions = Vec::new();
-    }
-    directions.append(&mut bytes_to_direction(
-        compressed.last().expect("should hold data to uncompress"),
-        cursor,
-    ));
-    directions_to_string(directions, &tree)
 }
