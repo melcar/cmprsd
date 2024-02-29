@@ -1,4 +1,4 @@
-name: Rust benchmarks 
+name: Rust benchmark
 on:
   push:
     branches:
@@ -10,16 +10,16 @@ permissions:
 
 jobs:
   benchmark:
-    name: Run Rust benchmark example
+    name: Compression benchmark
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: rustup toolchain update nightly && rustup default nightly
       - name: Run benchmark
-        run: cd examples/rust && cargo +nightly bench | tee output.txt
+        run: cargo +nightly bench | tee output.txt
 
       - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: melcar/cmprsd/@Benchmark-results
         with:
           name: Rust Benchmark
           tool: 'cargo'
@@ -30,10 +30,10 @@ jobs:
           alert-threshold: '200%'
           comment-on-alert: true
           fail-on-alert: true
-          alert-comment-cc-users: '@ktrz'
+          alert-comment-cc-users: '@melcar'
 
       - name: Store benchmark result - separate results repo
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: melcar/cmprsd/@Benchmark-results
         with:
           name: Rust Benchmark
           tool: 'cargo'
