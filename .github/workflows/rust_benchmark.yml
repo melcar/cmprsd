@@ -19,7 +19,7 @@ jobs:
         run: cargo +nightly bench | tee output.txt
 
       - name: Store benchmark result
-        uses: melcar/cmprsd/@Benchmark-results
+        uses: melcar/cmprsd@Benchmark-results
         with:
           name: Rust Benchmark
           tool: 'cargo'
@@ -33,7 +33,7 @@ jobs:
           alert-comment-cc-users: '@melcar'
 
       - name: Store benchmark result - separate results repo
-        uses: melcar/cmprsd/@Benchmark-results
+        uses: melcar/cmprsd@Benchmark-results
         with:
           name: Rust Benchmark
           tool: 'cargo'
