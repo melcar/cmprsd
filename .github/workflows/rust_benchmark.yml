@@ -37,4 +37,4 @@ jobs:
           comment-on-alert: true
           fail-on-alert: true
           alert-comment-cc-users: '@melcar'
-          gh-repository: '@github.com/melcar/cmprsd/tree/Benchmark-results'
+          gh-repository: '@github.com/melcar/cmprsd'
