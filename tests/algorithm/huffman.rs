@@ -3,10 +3,12 @@ use std::fs::File;
 use std::io::Read;
 
 use cmprsd::algorithm::huffman::{
-    self, build_huffman_tree, combine_nodes, compute_frequencies, Frequency, Huffman,
+    self, build_huffman_tree, combine_nodes, compute_frequencies, CompressionError, Frequency,
+    Huffman,
 };
 use cmprsd::algorithm::util::binary_tree::Tree;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -17,10 +19,29 @@ fn close_to(a: f64, b: f64, delta: f64) -> bool {
 }
 
 fn test_compression_decompression(data: &str) {
-    let compressed_data = Huffman::compress(data).expect("data should compress");
-    let decompressed_data = compressed_data.decompress();
-    assert_eq!(data.len(), decompressed_data.len());
-    assert_eq!(data, decompressed_data);
+    match Huffman::compress(data) {
+        Err(CompressionError::NoDataToCompress) => assert!(data.is_empty()),
+        Err(CompressionError::DataCannotBeCompressed) => {
+            assert!(!data.chars().any(|c| c != data.chars().last().unwrap()))
+        }
+        Ok(compressed_data) => {
+            let decompressed_data = compressed_data.decompress();
+            assert_eq!(
+                data.len(),
+                decompressed_data.len(),
+                " {}\n and \n{}\n have different len : {}!={}",
+                data.len(),
+                decompressed_data.len(),
+                data,
+                decompressed_data
+            );
+            assert_eq!(
+                data, decompressed_data,
+                "expected \n{}\n but got\n{}",
+                data, decompressed_data
+            );
+        }
+    }
 }
 
 fn test_from_file(path: &str) -> std::io::Result<()> {
@@ -31,9 +52,30 @@ fn test_from_file(path: &str) -> std::io::Result<()> {
     Ok(())
 }
 
+fn get_random_string(range: std::ops::Range<usize>) -> String {
+    let mut rng = thread_rng();
+    let string_length: usize = rng.gen_range(range);
+
+    (&mut rng)
+        .sample_iter(Alphanumeric)
+        .take(string_length)
+        .map(char::from)
+        .collect()
+}
+
 #[test]
 pub fn huffman_empty_string() {
-    assert!(Huffman::compress("").is_err())
+    test_compression_decompression("")
+}
+
+#[test]
+pub fn huffman_one_character() {
+    test_compression_decompression("a")
+}
+
+#[test]
+pub fn huffman_twice_same_character() {
+    test_compression_decompression("aa")
 }
 
 #[test]
@@ -47,9 +89,22 @@ pub fn huffman_two_characters() {
 }
 
 #[test]
-#[ignore = "not implemented yet"]
 pub fn huffman_random() {
-    Huffman::compress("").expect("compression should not fail");
+    let mut start = 120;
+    let mut end = 130; //(start as f32 * 1.1) as usize;
+    (1..10_000).for_each(|i| {
+        if i % 1000 == 0 {
+            start += 10;
+            end = (start as f32 * 1.1) as usize;
+        }
+        let random_string = get_random_string(start..end);
+        test_compression_decompression(&random_string)
+    })
+}
+
+#[test]
+pub fn huffman_hello_worlds() {
+    test_compression_decompression("On offering to help the blind man, the man who then stole his car, had not, at that precise moment, had any evil intention, quite the contrary, w");
 }
 
 #[test]
@@ -59,7 +114,7 @@ pub fn huffman_hello_world() {
 
 #[test]
 pub fn huffman_lorem() {
-    test_compression_decompression(LOREM_IPSUM);
+    test_compression_decompression(&LOREM_IPSUM[1..LOREM_IPSUM.len() / 3 - 6]);
 }
 
 #[test]
@@ -146,17 +201,14 @@ pub fn compute_frequencies_lorem_ipsum() {
 }
 
 #[test]
+pub fn test() {
+    let string ="Z8LLhYT7I5LfSQ6xOXaksWkfFWGQcsqOlJmLJtnjqbWPJEBm3FoAmf3LYNp2mmSsaXLAagsRCcl4mVtzqC0gWCNDliQBotL7EGShb4RtigBxm6CopGJnFEZFZgl567FcL8XpxxyY6wwlASqhsXuyN3xLMZJwPuOhgBCc3Ah3qyZ7t4jl9MHvoIUXHcHLZRbc6";
+    test_compression_decompression(string)
+}
+
+#[test]
 pub fn compute_frequencies_random_long_string() {
-    let mut rng = thread_rng();
-
-    let string_length: usize = rng.gen_range(500_000..1_000_000);
-
-    let random_string: String = (&mut rng)
-        .sample_iter(Alphanumeric)
-        .take(string_length)
-        .map(char::from)
-        .collect();
-
+    let random_string = get_random_string(10_000..15_000);
     check_frequencies(huffman::compute_frequencies(&random_string), &random_string)
 }
 

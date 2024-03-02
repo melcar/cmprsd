@@ -3,9 +3,16 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
-    Left,
-    Right,
+    Left= 1,
+    Right = 0,
 }
+
+impl From<Direction> for u8 {
+   fn from(direction: Direction) -> u8{
+    direction as u8
+   } 
+}
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Tree<T: std::cmp::Ord + Copy> {
     Node {

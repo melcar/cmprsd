@@ -34,8 +34,8 @@ fn compressing_lorem_ipsum(c: &mut Criterion) {
 fn compressing_japanese_author(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
+    let mut group = c.benchmark_group("100 samples");
+    group.sample_size(100);
     group.bench_function("Compressing japanese author", |b| {
         b.iter(|| Huffman::compress(black_box(&text)))
     });
@@ -44,8 +44,8 @@ fn compressing_japanese_author(c: &mut Criterion) {
 fn compressing_proust(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
+    let mut group = c.benchmark_group("100 samples");
+    group.sample_size(100);
     group.bench_function("Compressing Proust", |b| {
         b.iter(|| Huffman::compress(black_box(&text)))
     });
@@ -75,8 +75,8 @@ fn decompressing_japanese_author(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let compressed_text = Huffman::compress(&text).expect("");
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
+    let mut group = c.benchmark_group("100 samples");
+    group.sample_size(100);
     group.bench_function("Decompressing japanse author", |b| {
         b.iter(|| black_box(compressed_text.decompress()))
     });
@@ -86,8 +86,8 @@ fn decompressing_proust(c: &mut Criterion) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let compressed_text = Huffman::compress(&text).expect("");
-    let mut group = c.benchmark_group("10 samples");
-    group.sample_size(10);
+    let mut group = c.benchmark_group("100 samples");
+    group.sample_size(100);
     group.bench_function("Decompressing Proust", |b| {
         b.iter(|| black_box(compressed_text.decompress()))
     });
