@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1709455671222,
+  "lastUpdate": 1709501521365,
   "repoUrl": "https://github.com/melcar/cmprsd",
   "entries": {
     "Rust Benchmark": [
@@ -143,6 +143,36 @@ window.BENCHMARK_DATA = {
             "name": "100 samples/Decompressing Proust",
             "value": 53925915,
             "range": "± 504360",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "15875473+melcar@users.noreply.github.com",
+            "name": "melcar",
+            "username": "melcar"
+          },
+          "committer": {
+            "email": "15875473+melcar@users.noreply.github.com",
+            "name": "melcar",
+            "username": "melcar"
+          },
+          "distinct": true,
+          "id": "a93385266900eb18dabeca48726d2c3e6af999c1",
+          "message": "fixed bench run",
+          "timestamp": "2024-03-03T22:29:42+01:00",
+          "tree_id": "0eb683c99af998aca5673e45590e3b32341f593d",
+          "url": "https://github.com/melcar/cmprsd/commit/a93385266900eb18dabeca48726d2c3e6af999c1"
+        },
+        "date": 1709501520974,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "100 samples/Decompressing Hello worlds",
+            "value": 1599,
+            "range": "± 5",
             "unit": "ns/iter"
           }
         ]
