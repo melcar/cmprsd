@@ -14,15 +14,13 @@ struct MeaningfullValueFormater;
 struct Regular;
 
 impl MeaningfullValueFormater {
-    fn get_formatter(ns: f64) -> impl FnMut(f64) -> String {
+    fn get_formatter(ns: f64) -> String {
         let scaler = MeaningfullValueFormater::get_scaler(ns);
-        move |ns: f64| -> String {
-            format!(
-                "{:>6} {}",
-                scaler(&ns),
-                MeaningfullValueFormater::get_unit(ns)
-            )
-        }
+        format!(
+            "{:.4} {}", // does not print 4 decimals
+            scaler(&ns),
+            MeaningfullValueFormater::get_unit(ns)
+        )
     }
 
     fn get_scaler(ns: f64) -> fn(&f64) -> f64 {
@@ -89,19 +87,29 @@ impl Measurement for Regular {
 // https://bheisler.github.io/criterion.rs/book/user_guide/custom_measurements.html
 impl ValueFormatter for MeaningfullValueFormater {
     fn format_value(&self, ns: f64) -> String {
-        MeaningfullValueFormater::get_formatter(ns)(ns)
+        MeaningfullValueFormater::get_formatter(ns)
     }
 
     fn format_throughput(&self, throughput: &criterion::Throughput, value: f64) -> String {
-        unimplemented!()
+        match throughput {
+            Throughput::Bytes(bytes) => {
+                format!("{} b/s", (*bytes as f64) / (value * 10f64.powi(-9)))
+            }
+            Throughput::BytesDecimal(bytes) => {
+                format!("{} b/s", (*bytes as f64) / (value * 10f64.powi(-9)))
+            }
+            Throughput::Elements(elements) => {
+                format!(
+                    "{} elements/s",
+                    (*elements as f64) / (value * 10f64.powi(-9))
+                )
+            }
+        }
     }
 
     fn scale_values(&self, ns: f64, values: &mut [f64]) -> &'static str {
         let scaler = MeaningfullValueFormater::get_scaler(ns);
-        let _ = values
-            .iter_mut()
-            .map(|val| scaler(val))
-            .collect::<Vec<f64>>();
+        values.iter_mut().for_each(|value| *value = scaler(value));
         MeaningfullValueFormater::get_unit(ns)
     }
 
@@ -111,13 +119,14 @@ impl ValueFormatter for MeaningfullValueFormater {
         throughput: &Throughput,
         values: &mut [f64],
     ) -> &'static str {
-        println!("2");
         unimplemented!()
     }
 
     fn scale_for_machines(&self, values: &mut [f64]) -> &'static str {
-        println!("1");
-        unimplemented!()
+        let avg: f64 = values.iter().sum::<f64>() / values.len() as f64;
+        let scaler = MeaningfullValueFormater::get_scaler(avg);
+        values.iter_mut().for_each(|value| *value = scaler(value));
+        MeaningfullValueFormater::get_unit(avg)
     }
 }
 
