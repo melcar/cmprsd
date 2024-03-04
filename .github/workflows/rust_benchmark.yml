@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: rustup toolchain update nightly && rustup default nightly
       - name: Run benchmark
-        run: cargo +nightly bench --bench huffman  -- --output-format bencher   | tee output.txt
+        run: cargo +nightly bench --features remote-benchmarks --bench huffman  -- --output-format bencher   | tee output.txt
 
       - name: Store benchmark result - separate results repo
         uses: benchmark-action/github-action-benchmark@v1

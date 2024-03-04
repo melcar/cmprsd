@@ -1,3 +1,4 @@
+#![cfg_attr(feature = "remote-banchmarks", feature(remote-benchmarks))]
 use std::{
     fs::File,
     time::{Duration, Instant},
@@ -6,12 +7,18 @@ const NANOS_PER_SEC: u64 = 1_000_000_000;
 use cmprsd::algorithm::huffman::Huffman;
 use criterion::{
     black_box, criterion_group, criterion_main,
-    measurement::{Measurement, ValueFormatter},
+    measurement::{Measurement, ValueFormatter, WallTime},
     Criterion, Throughput,
 };
 use std::io::Read;
 struct MeaningfullValueFormater;
 struct Regular;
+
+#[cfg(not(feature = "remote-benchmarks"))]
+type CriterionType = Regular;
+
+#[cfg(feature = "remote-benchmarks")]
+type CriterionType = WallTime;
 
 impl MeaningfullValueFormater {
     fn get_formatter(ns: f64) -> String {
@@ -53,6 +60,7 @@ impl MeaningfullValueFormater {
     }
 }
 
+#[cfg(not(feature = "remote-benchmarks"))]
 impl Measurement for Regular {
     type Intermediate = Instant;
 
@@ -84,6 +92,7 @@ impl Measurement for Regular {
     }
 }
 
+#[cfg(not(feature = "remote-benchmarks"))]
 // https://bheisler.github.io/criterion.rs/book/user_guide/custom_measurements.html
 impl ValueFormatter for MeaningfullValueFormater {
     fn format_value(&self, ns: f64) -> String {
@@ -116,8 +125,8 @@ impl ValueFormatter for MeaningfullValueFormater {
     fn scale_throughputs(
         &self,
         _typical: f64,
-        throughput: &Throughput,
-        values: &mut [f64],
+        _throughput: &Throughput,
+        _values: &mut [f64],
     ) -> &'static str {
         unimplemented!()
     }
@@ -130,9 +139,11 @@ impl ValueFormatter for MeaningfullValueFormater {
     }
 }
 
-fn better_measurement() -> Criterion<Regular> {
+#[cfg(not(feature = "remote-benchmarks"))]
+fn better_measurement() -> Criterion<CriterionType> {
     Criterion::default().with_measurement(Regular)
 }
+
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 fn get_from_file(path: &str) -> std::io::Result<String> {
@@ -142,7 +153,7 @@ fn get_from_file(path: &str) -> std::io::Result<String> {
     Ok(contents)
 }
 
-fn compressing_hello_world(c: &mut Criterion<Regular>) {
+fn compressing_hello_world(c: &mut Criterion<CriterionType>) {
     let text = "Hello world!";
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
@@ -151,7 +162,7 @@ fn compressing_hello_world(c: &mut Criterion<Regular>) {
     });
 }
 
-fn compressing_lorem_ipsum(c: &mut Criterion<Regular>) {
+fn compressing_lorem_ipsum(c: &mut Criterion<CriterionType>) {
     let text = LOREM_IPSUM;
     let mut group = c.benchmark_group("100 samples");
     group.sample_size(100);
@@ -160,7 +171,7 @@ fn compressing_lorem_ipsum(c: &mut Criterion<Regular>) {
     });
 }
 
-fn compressing_japanese_author(c: &mut Criterion<Regular>) {
+fn compressing_japanese_author(c: &mut Criterion<CriterionType>) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let mut group = c.benchmark_group("100 samples");
@@ -170,7 +181,7 @@ fn compressing_japanese_author(c: &mut Criterion<Regular>) {
     });
 }
 
-fn compressing_proust(c: &mut Criterion<Regular>) {
+fn compressing_proust(c: &mut Criterion<CriterionType>) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let mut group = c.benchmark_group("100 samples");
@@ -180,7 +191,7 @@ fn compressing_proust(c: &mut Criterion<Regular>) {
     });
 }
 
-fn decompressing_hello_world(c: &mut Criterion<Regular>) {
+fn decompressing_hello_world(c: &mut Criterion<CriterionType>) {
     let text = "Hello world!";
     let compressed_text = Huffman::compress(text).expect("");
     let mut group = c.benchmark_group("100 samples");
@@ -190,7 +201,7 @@ fn decompressing_hello_world(c: &mut Criterion<Regular>) {
     });
 }
 
-fn decompressing_lorem_ipsum(c: &mut Criterion<Regular>) {
+fn decompressing_lorem_ipsum(c: &mut Criterion<CriterionType>) {
     let text = LOREM_IPSUM;
     let compressed_text = Huffman::compress(text).expect("");
     let mut group = c.benchmark_group("100 samples");
@@ -200,7 +211,7 @@ fn decompressing_lorem_ipsum(c: &mut Criterion<Regular>) {
     });
 }
 
-fn decompressing_japanese_author(c: &mut Criterion<Regular>) {
+fn decompressing_japanese_author(c: &mut Criterion<CriterionType>) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let compressed_text = Huffman::compress(&text).expect("");
@@ -211,7 +222,7 @@ fn decompressing_japanese_author(c: &mut Criterion<Regular>) {
     });
 }
 
-fn decompressing_proust(c: &mut Criterion<Regular>) {
+fn decompressing_proust(c: &mut Criterion<CriterionType>) {
     let text = get_from_file("ressources/text/Du côté de chez Swann by Marcel Proust")
         .expect("file should be found");
     let compressed_text = Huffman::compress(&text).expect("");
@@ -221,7 +232,7 @@ fn decompressing_proust(c: &mut Criterion<Regular>) {
         b.iter(|| black_box(compressed_text.decompress()))
     });
 }
-
+#[cfg(not(feature = "remote-benchmarks"))]
 criterion_group! {
     name=benches;
     config= better_measurement();
@@ -234,5 +245,18 @@ criterion_group! {
     decompressing_japanese_author,
     decompressing_proust
 }
+
+#[cfg(feature = "remote-benchmarks")]
+criterion_group!(
+    benches,
+    compressing_hello_world,
+    compressing_lorem_ipsum,
+    compressing_japanese_author,
+    compressing_proust,
+    decompressing_hello_world,
+    decompressing_lorem_ipsum,
+    decompressing_japanese_author,
+    decompressing_proust
+);
 
 criterion_main!(benches);
