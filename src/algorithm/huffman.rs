@@ -70,7 +70,7 @@ impl CompressedData {
                     let byte = self.bits.get_mut(i).unwrap();
                     *byte = (*byte >> padding_size) | (previous_byte << (8 - padding_size));
                 });
-                *self.bits.first_mut().unwrap() = *self.bits.first().unwrap() >> padding_size;
+                self.bits[0] >>= padding_size;
             }
             _ => unimplemented!(),
         }
@@ -83,16 +83,10 @@ impl CompressedData {
                 self.meaningful_bits = other.meaningful_bits;
                 self.bits.append(&mut other.bits.clone())
             }
-            0 => {
-                //not necessary
-                self.meaningful_bits = other.meaningful_bits;
-                self.bits.pop();
-                self.bits.append(&mut other.bits.clone())
-            }
             _ => {
                 let mut other = other.clone();
                 other.pad(self.meaningful_bits);
-                self.bits.append(&mut vec![0_u8; other.bits.len() - 1]);
+                self.bits.resize(self.bits.len() +other.bits.len() - 1, 0_u8);
                 self.meaningful_bits = other.meaningful_bits;
 
                 let len = self.bits.len();
@@ -155,13 +149,13 @@ impl Huffman {
         if compressed_data.bits.len() >= 2 {
             directions = compressed_data.bits[0..=compressed_data.bits.len() - 2]
                 .iter()
-                .flat_map(|byte| bytes_to_direction(byte, &8))
+                .flat_map(|byte| bytes_to_direction(*byte, &8))
                 .collect();
         } else {
             directions = Vec::new();
         }
         directions.append(&mut bytes_to_direction(
-            compressed_data
+            *compressed_data
                 .bits
                 .last()
                 .expect("should hold data to uncompress"),
@@ -273,7 +267,7 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     }))
 }
 
-pub fn bytes_to_direction(byte: &u8, cursor: &u8) -> Vec<Direction> {
+pub fn bytes_to_direction(byte: u8, cursor: &u8) -> Vec<Direction> {
     let mut directions: Vec<Direction> = Vec::new();
     (1..=*cursor).for_each(|i| match (byte >> (8_u8 - i)) % 2 {
         0 => directions.push(Right),
@@ -285,11 +279,11 @@ pub fn bytes_to_direction(byte: &u8, cursor: &u8) -> Vec<Direction> {
 
 pub fn directions_to_string(directions: Vec<Direction>, root: &Tree<Frequency>) -> String {
     directions
-        .iter()
+        .into_iter()
         .fold(
             ("".to_string(), root),
             |(decompressed_data, current_node), direction| match &current_node
-                .get_value_from_directions(*direction)
+                .get_value_from_directions(direction)
                 .expect("data corrupted")
             {
                 Tree::Leaf(frequency) => (

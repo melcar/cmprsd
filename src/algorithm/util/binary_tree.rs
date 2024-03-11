@@ -3,18 +3,18 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Direction {
-    Left= 1,
+    Left = 1,
     Right = 0,
 }
 
 impl From<Direction> for u8 {
-   fn from(direction: Direction) -> u8{
-    direction as u8
-   } 
+    fn from(direction: Direction) -> u8 {
+        direction as u8
+    }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
-pub enum Tree<T: std::cmp::Ord + Copy> {
+pub enum Tree<T: std::cmp::Ord> {
     Node {
         content: T,
         left: Box<Tree<T>>, //should be optionals
@@ -122,11 +122,7 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
     pub fn get_value(&self) -> &T {
         match self {
             Tree::Leaf(n) => n,
-            Tree::Node {
-                content,
-                left: _,
-                right: _,
-            } => content,
+            Tree::Node { content, .. } => content,
         }
     }
 
