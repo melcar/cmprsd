@@ -27,7 +27,7 @@ impl CompressedData {
         }
     }
 
-    pub fn from_bits_as_u8(bits_as_u8: &Vec<u8>) -> CompressedData {
+    pub fn from_bits_as_u8(bits_as_u8: &[u8]) -> CompressedData {
         let mut bits = vec![0; (bits_as_u8.len() - 1) / 8 + 1];
         let mut meaningful_bits: u8 = (bits_as_u8.len() % 8) as u8;
         if meaningful_bits == 0 {
@@ -113,7 +113,7 @@ impl Huffman {
         if frequencies.len() == 1 {
             return Err(CompressionError::DataCannotBeCompressed);
         }
-        build_huffman_tree(frequencies.clone())
+        build_huffman_tree(&frequencies.clone())
             .leaf_paths()
             .iter()
             .for_each(|(directions, node)| {
@@ -144,12 +144,12 @@ impl Huffman {
             frequencies,
             compressed_data,
         } = self;
-        let tree = build_huffman_tree(frequencies.to_owned());
+        let tree = build_huffman_tree(frequencies);
         let mut directions: Vec<Direction>;
         if compressed_data.bits.len() >= 2 {
             directions = compressed_data.bits[0..=compressed_data.bits.len() - 2]
                 .iter()
-                .flat_map(|byte| bytes_to_direction(*byte, &8))
+                .flat_map(|byte| bytes_to_direction(*byte, 8))
                 .collect();
         } else {
             directions = Vec::new();
@@ -159,9 +159,9 @@ impl Huffman {
                 .bits
                 .last()
                 .expect("should hold data to uncompress"),
-            &compressed_data.meaningful_bits,
+            compressed_data.meaningful_bits,
         ));
-        directions_to_string(directions, &tree)
+        directions_to_string(&directions, &tree)
     }
 }
 
@@ -242,7 +242,7 @@ pub fn combine_nodes(mut frequency_nodes: Vec<Tree<Frequency>>) -> Vec<Tree<Freq
     frequency_nodes
 }
 
-pub fn build_huffman_tree(frequencies: Vec<Frequency>) -> Tree<Frequency> {
+pub fn build_huffman_tree(frequencies: &[Frequency]) -> Tree<Frequency> {
     let mut frequency_nodes = frequencies
         .iter()
         .copied()
@@ -267,9 +267,9 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     }))
 }
 
-pub fn bytes_to_direction(byte: u8, cursor: &u8) -> Vec<Direction> {
+pub fn bytes_to_direction(byte: u8, cursor: u8) -> Vec<Direction> {
     let mut directions: Vec<Direction> = Vec::new();
-    (1..=*cursor).for_each(|i| match (byte >> (8_u8 - i)) % 2 {
+    (1..=cursor).for_each(|i| match (byte >> (8_u8 - i)) % 2 {
         0 => directions.push(Right),
         1 => directions.push(Left),
         _ => unreachable!(),
@@ -277,13 +277,13 @@ pub fn bytes_to_direction(byte: u8, cursor: &u8) -> Vec<Direction> {
     directions
 }
 
-pub fn directions_to_string(directions: Vec<Direction>, root: &Tree<Frequency>) -> String {
+pub fn directions_to_string(directions: &[Direction], root: &Tree<Frequency>) -> String {
     directions
-        .into_iter()
+        .iter()
         .fold(
             ("".to_string(), root),
             |(decompressed_data, current_node), direction| match &current_node
-                .get_value_from_directions(direction)
+                .get_value_from_directions(*direction)
                 .expect("data corrupted")
             {
                 Tree::Leaf(frequency) => (

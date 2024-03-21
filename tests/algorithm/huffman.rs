@@ -174,7 +174,7 @@ pub fn compute_frequencies_two_character_25_75() {
     assert!(close_to(frequencies[1].get_frequency(), 0.75, EPSILON));
 }
 
-fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
+fn check_frequencies(frequencies: &[Frequency], string: &str) {
     for frequency in frequencies.iter() {
         assert!(close_to(
             frequency.get_frequency(),
@@ -192,12 +192,12 @@ fn check_frequencies(frequencies: Vec<Frequency>, string: &str) {
 pub fn compute_frequencies_repeating_string() {
     let data = "ababababababab";
     let frequencies = compute_frequencies(data);
-    check_frequencies(frequencies, data)
+    check_frequencies(&frequencies, data)
 }
 
 #[test]
 pub fn compute_frequencies_lorem_ipsum() {
-    check_frequencies(huffman::compute_frequencies(LOREM_IPSUM), LOREM_IPSUM);
+    check_frequencies(&huffman::compute_frequencies(LOREM_IPSUM), LOREM_IPSUM);
 }
 
 #[test]
@@ -209,7 +209,7 @@ pub fn test() {
 #[test]
 pub fn compute_frequencies_random_long_string() {
     let random_string = get_random_string(10_000..15_000);
-    check_frequencies(huffman::compute_frequencies(&random_string), &random_string)
+    check_frequencies(&huffman::compute_frequencies(&random_string), &random_string)
 }
 
 fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: f64) {
@@ -298,7 +298,7 @@ pub fn combine_5_nodes() {
     let frequencies = compute_frequencies(input);
     assert_eq!(frequencies.len(), 5);
 
-    let tree = build_huffman_tree(frequencies);
+    let tree = build_huffman_tree(&frequencies);
     assert_eq!(tree.len(), 9);
     assert_eq!(tree.height(), 4);
     let bfs = tree.to_breadth_first_search();
