@@ -9,6 +9,7 @@ use cmprsd::algorithm::huffman::{
 use cmprsd::algorithm::util::binary_tree::Tree;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use std::cmp::Reverse;
 
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -209,7 +210,10 @@ pub fn test() {
 #[test]
 pub fn compute_frequencies_random_long_string() {
     let random_string = get_random_string(10_000..15_000);
-    check_frequencies(&huffman::compute_frequencies(&random_string), &random_string)
+    check_frequencies(
+        &huffman::compute_frequencies(&random_string),
+        &random_string,
+    )
 }
 
 fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: f64) {
@@ -251,15 +255,16 @@ pub fn combine_2_nodes_50_50_alphabetical_order() {
     let frequencies = huffman::compute_frequencies("ab")
         .into_iter()
         .map(Tree::Leaf)
+        .map(Reverse)
         .collect();
 
-    let nodes = combine_nodes(frequencies);
+    let mut nodes = combine_nodes(frequencies);
     assert_eq!(nodes.len(), 1);
-    let combines_node = &nodes[0];
+    let combines_node = nodes.pop().unwrap().0;
     assert_eq!(combines_node.len(), 3);
     assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
     check_internal_node(
-        combines_node,
+        &combines_node,
         Frequency::build_frequency(std::u16::MAX - 1, None),
         Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('a'))),
         Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('b'))),
@@ -271,11 +276,12 @@ pub fn combine_2_nodes_75_25() {
     let frequencies = huffman::compute_frequencies("abbb")
         .into_iter()
         .map(Tree::Leaf)
+        .map(Reverse)
         .collect();
 
-    let nodes = combine_nodes(frequencies);
+    let mut nodes = combine_nodes(frequencies);
     assert_eq!(nodes.len(), 1);
-    let combines_node = &nodes[0];
+    let combines_node = nodes.pop().unwrap().0;
     assert_eq!(combines_node.len(), 3);
     assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
 
@@ -285,8 +291,8 @@ pub fn combine_2_nodes_75_25() {
             left,
             right,
         } => {
-            check_leaf(left, 'a', 0.25);
-            check_leaf(right, 'b', 0.75);
+            check_leaf(&left, 'a', 0.25);
+            check_leaf(&right, 'b', 0.75);
         }
         _ => unreachable!("should be internal node. Not a leaf."),
     }

@@ -4,7 +4,10 @@ use super::util::binary_tree::{
     Tree,
 };
 use core::fmt;
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    cmp::Reverse,
+    collections::{BTreeMap, BinaryHeap, HashMap},
+};
 
 pub enum Huffman {
     Compressed {
@@ -217,9 +220,9 @@ impl Tree<Frequency> {
 // take an huffman tree and create a map of character to encoding
 pub fn huffman_tree_to_map() {}
 
-pub fn combine_nodes(mut frequency_nodes: Vec<Tree<Frequency>>) -> Vec<Tree<Frequency>> {
-    frequency_nodes.sort_by(|a, b| b.cmp(a));
-
+pub fn combine_nodes(
+    mut frequency_nodes: BinaryHeap<Reverse<Tree<Frequency>>>,
+) -> BinaryHeap<Reverse<Tree<Frequency>>> {
     let smallest = frequency_nodes
         .pop()
         .expect("binary tree shouls not be empty");
@@ -229,13 +232,13 @@ pub fn combine_nodes(mut frequency_nodes: Vec<Tree<Frequency>>) -> Vec<Tree<Freq
 
     let new_node = Tree::build_internal_node(
         Frequency {
-            frequency: smallest.get_value().frequency + second_smallest.get_value().frequency,
+            frequency: smallest.0.get_value().frequency + second_smallest.0.get_value().frequency,
             character: None,
         },
-        smallest,
-        second_smallest,
+        smallest.0,
+        second_smallest.0,
     );
-    frequency_nodes.push(new_node);
+    frequency_nodes.push(Reverse(new_node));
     frequency_nodes
 }
 
@@ -244,12 +247,13 @@ pub fn build_huffman_tree(frequencies: &[Frequency]) -> Tree<Frequency> {
         .iter()
         .copied()
         .map(Tree::Leaf)
-        .collect::<Vec<Tree<Frequency>>>();
+        .map(Reverse)
+        .collect::<BinaryHeap<Reverse<Tree<Frequency>>>>();
     for _ in 1..frequencies.len() {
         frequency_nodes = combine_nodes(frequency_nodes);
     }
     assert!(frequency_nodes.len() == 1);
-    frequency_nodes[0].clone()
+    frequency_nodes.pop().unwrap().0
 }
 
 pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
