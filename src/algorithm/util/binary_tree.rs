@@ -66,11 +66,7 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
         let mut visited_nodes: VecDeque<&Tree<T>> = VecDeque::new();
         let mut bfs_nodes: Vec<T> = Vec::new();
         visited_nodes.push_back(self);
-        while !visited_nodes.is_empty() {
-            let node = visited_nodes
-                .pop_front()
-                .expect("can't be empty at this point");
-
+        while let Some(node) = visited_nodes.pop_front(){
             if let Tree::Node {
                 content: _,
                 left,
@@ -90,8 +86,7 @@ impl<T: std::cmp::Ord + Copy> Tree<T> {
         let mut visited_nodes: VecDeque<(Vec<Direction>, &Tree<T>)> = VecDeque::new();
         visited_nodes.push_back((Vec::<Direction>::new(), self));
         let mut nodes_codes = Vec::<(Vec<Direction>, T)>::new();
-        while !visited_nodes.is_empty() {
-            let (direction, node) = visited_nodes.pop_back().unwrap();
+        while let Some((direction, node)) = visited_nodes.pop_back(){
             let mut left_direction = direction.clone();
             left_direction.push(Direction::Left);
             let mut right_direction = direction.clone();

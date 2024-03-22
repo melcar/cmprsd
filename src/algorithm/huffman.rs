@@ -86,7 +86,8 @@ impl CompressedData {
             _ => {
                 let mut other = other.clone();
                 other.pad(self.meaningful_bits);
-                self.bits.resize(self.bits.len() +other.bits.len() - 1, 0_u8);
+                self.bits
+                    .resize(self.bits.len() + other.bits.len() - 1, 0_u8);
                 self.meaningful_bits = other.meaningful_bits;
 
                 let len = self.bits.len();
@@ -209,11 +210,7 @@ impl Tree<Frequency> {
     pub fn get_frequency(&self) -> f64 {
         match self {
             Tree::Leaf(leaf) => leaf.get_frequency(),
-            Tree::Node {
-                content,
-                left: _,
-                right: _,
-            } => content.get_frequency(),
+            Tree::Node { content, .. } => content.get_frequency(),
         }
     }
 }
