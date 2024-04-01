@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CompressionError","Huffman"],"fn":["build_huffman_tree","bytes_to_direction","combine_nodes","compute_frequencies","directions_to_string","huffman_tree_to_map"],"struct":["CompressedData","Frequency"]};
