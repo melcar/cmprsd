@@ -27,5 +27,5 @@ jobs:
           git config user.email github-actions@github.com
           mv target/doc/src/cmprsd ./
           git add ./cmprsd/*
-          git commit cmprsd/* -m "doc generated"
-          git push origin $GITHUB_WORKSPACE:gh-pages
+          git commit -a -m "doc generated"
+          git push origin gh-pages
