@@ -25,6 +25,6 @@ jobs:
           cargo doc --no-deps
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add .
-          git commit -m "doc generated"
+          git add ./target/*
+          git commit target/* -m "doc generated"
           git push $GITHUB_WORKSPACE:gh-pages
