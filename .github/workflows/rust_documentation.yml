@@ -23,8 +23,15 @@ jobs:
       - name: run doc generation 
         run: |
           cargo doc --no-deps
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "doc generated"
-          git push ${{ GITHUB_WORKSPACE }}:gh-pages
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          mkdir repo_clone
+          git clone --single-branch --branch gh-pages "https://${{ secrets.GITHUB_TOKEN }}@github.com/melcar/cmprsd.git" repo_clone
+          mv target/doc/ ./repo_clone
+          cd repo_clone
+          git add ./doc/*
+          git commit ./doc/* -m "doc generated"
+          git push "https://${{ secrets.PAT }}@github.com/melcar/cmprsd.git"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.PAT }} 
