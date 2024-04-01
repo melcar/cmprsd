@@ -1,0 +1,30 @@
+name: Rust documentation 
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+env:
+  CARGO_TERM_COLOR: always
+  
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  documentation:
+    name: Documentation generation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain update nightly && rustup default nightly
+      - name: run doc generation 
+        run: |
+          cargo doc --no-deps
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "doc generated"
+          git push ${{ GITHUB_WORKSPACE }}:gh-pages
