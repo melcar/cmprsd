@@ -28,4 +28,4 @@ jobs:
           mv target/doc/src/cmprsd ./
           git add ./cmprsd/*
           git commit cmprsd/* -m "doc generated"
-          git push $GITHUB_WORKSPACE:gh-pages
+          git push origin $GITHUB_WORKSPACE:gh-pages
