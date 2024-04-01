@@ -126,6 +126,33 @@
           _: '#333333'
         };
 
+        function formatData( datasets){
+          // takes as input dataset with time in ns 
+          // return datasets and units associated
+          let average = datasets.reduce((acc, current) => acc + current.bench.value, 0)/datasets.length;
+          let mul;
+          let unit;
+          if(average < Math.pow(10, 3)){
+            mul = 1;
+            unit = "iter/ns";
+          } else if(average < Math.pow(10, 6)){
+            mul = 1/Math.pow(10,3);
+            unit = "iter/μs";
+          }else if (average < Math.pow(10,9)){
+            mul = 1/Math.pow(10,6);
+            unit = "iter/ms";
+          }else{
+            mul = 1/Math.pow(10,9);
+            unit = "iter/s";
+          }
+
+          for (let data of datasets){
+            data.bench.value = data.bench.value*mul;
+            data.bench.unit = unit;
+          }
+          return datasets;
+        }
+
         function init() {
           function collectBenchesPerTestCase(entries) {
             const map = new Map();
@@ -264,7 +291,8 @@
             setElem.appendChild(graphsElem);
 
             for (const [benchName, benches] of benchSet.entries()) {
-              renderGraph(graphsElem, benchName, benches)
+              const newBenches = formatData(benches);
+              renderGraph(graphsElem, benchName,newBenches)
             }
           }
 
