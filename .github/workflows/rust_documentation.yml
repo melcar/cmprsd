@@ -27,4 +27,4 @@ jobs:
           git config user.email github-actions@github.com
           git add .
           git commit -m "doc generated"
-          git push ${{ GITHUB_WORKSPACE }}:gh-pages
+          git push $GITHUB_WORKSPACE:gh-pages
