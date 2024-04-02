@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712091781389,
+  "lastUpdate": 1712091861952,
   "repoUrl": "https://github.com/melcar/cmprsd",
   "entries": {
     "Rust Benchmark": [
@@ -893,6 +893,78 @@ window.BENCHMARK_DATA = {
             "name": "100 samples/Decompressing Proust",
             "value": 55380964,
             "range": "± 160562",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "15875473+melcar@users.noreply.github.com",
+            "name": "melcar",
+            "username": "melcar"
+          },
+          "committer": {
+            "email": "15875473+melcar@users.noreply.github.com",
+            "name": "melcar",
+            "username": "melcar"
+          },
+          "distinct": true,
+          "id": "e1b4b86febf25357f06bf2c18c634776a1845d8d",
+          "message": "setting global user name and email",
+          "timestamp": "2024-04-02T23:02:08+02:00",
+          "tree_id": "e410fee0c237dc1c7342f94c474cb77cb0fb438d",
+          "url": "https://github.com/melcar/cmprsd/commit/e1b4b86febf25357f06bf2c18c634776a1845d8d"
+        },
+        "date": 1712091861095,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "100 samples/Compressing Hello worlds",
+            "value": 3699,
+            "range": "± 61",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Compressing Lorem Ipsum",
+            "value": 31271,
+            "range": "± 127",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Compressing japanese author",
+            "value": 56454995,
+            "range": "± 2191370",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Compressing Proust",
+            "value": 56395136,
+            "range": "± 480539",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Decompressing Hello worlds",
+            "value": 1483,
+            "range": "± 8",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Decompressing Lorem Ipsum",
+            "value": 25478,
+            "range": "± 156",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Decompressing japanse author",
+            "value": 55142000,
+            "range": "± 1574942",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "100 samples/Decompressing Proust",
+            "value": 55207234,
+            "range": "± 253272",
             "unit": "ns/iter"
           }
         ]
