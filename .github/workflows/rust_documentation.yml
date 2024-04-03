@@ -30,9 +30,12 @@ jobs:
           rsync -r target/doc/ ./repo_clone
           cd repo_clone
           if [ -n "$(git diff --exit-code)" ];then 
-            git add ./doc/*
-            git commit ./doc/* -m "doc generated"
-            git push "https://${{ secrets.PAT }}@github.com/melcar/cmprsd.git"
+              echo "Updating documentation"
+              git add ./doc/*;
+              git commit ./doc/* -m "doc generated";
+              git push "https://${{ secrets.PAT }}@github.com/melcar/cmprsd.git";
+            else
+              echo "No changes in documentation";
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
