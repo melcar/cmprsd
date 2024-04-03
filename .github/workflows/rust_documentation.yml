@@ -29,9 +29,11 @@ jobs:
           git clone --single-branch --branch gh-pages "https://${{ secrets.GITHUB_TOKEN }}@github.com/melcar/cmprsd.git" repo_clone
           rsync -r target/doc/ ./repo_clone
           cd repo_clone
-          git add ./doc/*
-          git commit ./doc/* -m "doc generated"
-          git push "https://${{ secrets.PAT }}@github.com/melcar/cmprsd.git"
+          if [ -n "$(git diff --exit-code)" ];then 
+            git add ./doc/*
+            git commit ./doc/* -m "doc generated"
+            git push "https://${{ secrets.PAT }}@github.com/melcar/cmprsd.git"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PAT: ${{ secrets.PAT }} 
