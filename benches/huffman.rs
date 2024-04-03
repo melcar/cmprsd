@@ -4,7 +4,7 @@ use std::{
     time::{Duration, Instant},
 };
 const NANOS_PER_SEC: u64 = 1_000_000_000;
-use cmprsd::algorithm::huffman::Huffman;
+use cmprsd::huffman::Huffman;
 use criterion::{
     black_box, criterion_group, criterion_main,
     measurement::{Measurement, ValueFormatter, WallTime},

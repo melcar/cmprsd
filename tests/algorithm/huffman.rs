@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-use cmprsd::algorithm::huffman::{
+use cmprsd::huffman::{
     self, build_huffman_tree, combine_nodes, compute_frequencies, CompressionError, Frequency,
     Huffman,
 };
-use cmprsd::algorithm::util::binary_tree::Tree;
+use cmprsd::util::binary_tree::Tree;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::cmp::Reverse;

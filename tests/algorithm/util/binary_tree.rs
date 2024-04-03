@@ -1,4 +1,4 @@
-use cmprsd::algorithm::util::binary_tree::{
+use cmprsd::util::binary_tree::{
     Direction::{Left, Right},
     Tree,
 };
