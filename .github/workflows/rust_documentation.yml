@@ -27,7 +27,8 @@ jobs:
           git config --global user.email github-actions@github.com
           mkdir repo_clone
           git clone --single-branch --branch gh-pages "https://${{ secrets.GITHUB_TOKEN }}@github.com/melcar/cmprsd.git" repo_clone
-          rsync -r target/doc/ ./repo_clone
+          rm -rf ./repo_clone/doc
+          mv target/doc/ ./repo_clone
           cd repo_clone
           if [ -n "$(git diff --exit-code)" ];then 
               echo "Updating documentation"
