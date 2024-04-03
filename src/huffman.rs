@@ -23,7 +23,7 @@ pub struct CompressedData {
     /// Vector of compressed bytes. each compressed block is stored at a bit level.  
     /// TODO: allow to use u8, u16, u32, u64 :
     pub bits: Vec<u8>,
-    /// as we store block of 8 bits, not all 8 bits are used at all time.
+    /// As we store blocks of 8 bits, not all 8 bits are used at all times.
     /// We therefore need a way to store how many bits are used or not used in the last byte.
     /// Currently I store how many of these bits are used.
     pub meaningful_bits: u8,

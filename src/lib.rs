@@ -2,7 +2,7 @@
 //! a wide range of compression algorithm. Currently only Huffman
 //! compression has been implemented. 
 //! 
-//! It t will soon be followed
+//! It will soon be followed
 //! by BWT and LZ77!
 //! 
 //! 
