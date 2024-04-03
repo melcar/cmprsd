@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"cmprsd":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"cmprsd/algorithm/huffman/struct.Frequency.html\" title=\"struct cmprsd::algorithm::huffman::Frequency\">Frequency</a>"]]
+"cmprsd":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"cmprsd/huffman/struct.Frequency.html\" title=\"struct cmprsd::huffman::Frequency\">Frequency</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

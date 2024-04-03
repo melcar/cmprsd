@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["algorithm"]};
+window.SIDEBAR_ITEMS = {"mod":["huffman","util"]};

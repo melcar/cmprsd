@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/algorithm/huffman.rs`."><title>huffman.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cmprsd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.79.0-nightly (1684a753d 2024-04-01)" data-channel="nightly" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/huffman.rs`."><title>huffman.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cmprsd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.79.0-nightly (88c2f4f5f 2024-04-02)" data-channel="nightly" data-search-js="search-ffac13a0df2b1870.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-e32f0c247825364d.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c97aec732c613ca4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../cmprsd/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../cmprsd/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -302,7 +302,34 @@
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::util::binary_tree::{
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//!Huffman coding and decoding.
+</span><span class="kw">use </span><span class="kw">super</span>::util::binary_tree::{
     Direction,
     Direction::{Left, Right},
     Tree,
@@ -320,21 +347,29 @@
     },
 }
 
-<span class="attr">#[derive(Clone)]
+<span class="doccomment">/// Struct that represents compressed data.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>CompressedData {
-    bits: Vec&lt;u8&gt;,
-    meaningful_bits: u8,
+    <span class="doccomment">/// Vector of compressed bytes. each compressed block is stored at a bit level.  
+    /// TODO: allow to use u8, u16, u32, u64 :
+    </span><span class="kw">pub </span>bits: Vec&lt;u8&gt;,
+    <span class="doccomment">/// as we store block of 8 bits, not all 8 bits are used at all time.
+    /// We therefore need a way to store how many bits are used or not used in the last byte.
+    /// Currently I store how many of these bits are used.
+    </span><span class="kw">pub </span>meaningful_bits: u8,
 }
 
 <span class="kw">impl </span>CompressedData {
-    <span class="kw">pub fn </span>get_empty() -&gt; CompressedData {
+    <span class="doccomment">/// Returns a compressed data entity which stores 0 bits.
+    </span><span class="kw">pub fn </span>get_empty() -&gt; CompressedData {
         CompressedData {
             bits: <span class="macro">vec!</span>[<span class="number">0</span>],
             meaningful_bits: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">pub fn </span>from_bits_as_u8(bits_as_u8: <span class="kw-2">&amp;</span>[u8]) -&gt; CompressedData {
+    <span class="doccomment">/// Take as input a vector of 0s and 1s and store them as bits.
+    </span><span class="kw">pub fn </span>from_bits_as_u8(bits_as_u8: <span class="kw-2">&amp;</span>[u8]) -&gt; CompressedData {
         <span class="kw">let </span><span class="kw-2">mut </span>bits = <span class="macro">vec!</span>[<span class="number">0</span>; (bits_as_u8.len() - <span class="number">1</span>) / <span class="number">8 </span>+ <span class="number">1</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>meaningful_bits: u8 = (bits_as_u8.len() % <span class="number">8</span>) <span class="kw">as </span>u8;
         <span class="kw">if </span>meaningful_bits == <span class="number">0 </span>{
@@ -351,14 +386,16 @@
         }
     }
 
-    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// size of the compressed data in bits
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.bits.len() * <span class="number">8 </span>- (<span class="number">8 </span>- <span class="self">self</span>.meaningful_bits <span class="kw">as </span>usize)
     }
 
     <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.len() == <span class="number">0
     </span>}
-    <span class="comment">// add some padding with 0s to the left
+
+    <span class="doccomment">/// Helper function to pad a block of bits. Usefull when combining blocks.
     </span><span class="kw">pub fn </span>pad(<span class="kw-2">&amp;mut </span><span class="self">self</span>, padding_size: u8) {
         <span class="kw">match </span>padding_size {
             <span class="number">0 </span>=&gt; (),
@@ -383,7 +420,8 @@
         }
     }
 
-    <span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>CompressedData) {
+    <span class="doccomment">/// Append bits of the other compressed data to self.
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>CompressedData) {
         <span class="comment">// potention to use map and to directly add all the "bytes" to self and compute startinf from the end all the bytes that need data to be added and what the data is.
         </span><span class="kw">match </span><span class="self">self</span>.meaningful_bits {
             <span class="number">8 </span>=&gt; {
@@ -409,8 +447,10 @@
     }
 }
 
-<span class="kw">impl </span>Huffman {
-    <span class="kw">pub fn </span>compress(data: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::huffman::Huffman, CompressionError&gt; {
+<span class="doccomment">/// Enum responsible for the compression and decompression of our input.
+</span><span class="kw">impl </span>Huffman {
+    <span class="doccomment">/// Compress takes as input the data as a string and returns the data compressed in bits.
+    </span><span class="kw">pub fn </span>compress(data: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::huffman::Huffman, CompressionError&gt; {
         <span class="comment">//mapping of char to Compressed value. as string for now
         </span><span class="kw">if </span>data.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CompressionError::NoDataToCompress);
@@ -447,7 +487,8 @@
         })
     }
 
-    <span class="kw">pub fn </span>decompress(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+    <span class="doccomment">/// A compressed huffman data can be decompressed to find back the original text using this method.
+    </span><span class="kw">pub fn </span>decompress(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span>Huffman::Compressed {
             frequencies,
             compressed_data,
@@ -473,28 +514,39 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="doccomment">/// Represents errors that can occure during compression.
+/// So far only two are represented.
+</span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub enum </span>CompressionError {
-    NoDataToCompress,
-    DataCannotBeCompressed,
+    <span class="doccomment">/// Is what happens when you try to compress and empty string.
+    </span>NoDataToCompress,
+    <span class="doccomment">/// It happens when the text to compressed is made of only one repeated character.
+    </span>DataCannotBeCompressed,
 }
 
-<span class="attr">#[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
+<span class="doccomment">/// Struct that represents the frequency of the different character found in a string.
+</span><span class="attr">#[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>Frequency {
-    <span class="kw">pub </span>frequency: u16, <span class="comment">// frequency is a value between 0 and 65536 and is equal to n/65536
-    // I could just have total count instead of frequency actually
+    <span class="doccomment">/// frequency is a value between 0 and 65536 and is equal to n/65536
+    </span><span class="kw">pub </span>frequency: u16,
+    <span class="comment">// I could just have total count instead of frequency actually
+    </span><span class="doccomment">/// char that the frequency represents.
+    /// It is an optional as in when we store frequencies in the huffman tree
+    /// we have nodes that hold  a combined frequency of the two children but do not hold any character.
     </span><span class="kw">pub </span>character: <span class="prelude-ty">Option</span>&lt;char&gt;,
 }
 
 <span class="kw">impl </span>Frequency {
-    <span class="kw">pub fn </span>build_frequency(frequency: u16, character: <span class="prelude-ty">Option</span>&lt;char&gt;) -&gt; Frequency {
+    <span class="doccomment">/// instanciate a frequency.
+    </span><span class="kw">pub fn </span>build_frequency(frequency: u16, character: <span class="prelude-ty">Option</span>&lt;char&gt;) -&gt; Frequency {
         Frequency {
             frequency,
             character,
         }
     }
 
-    <span class="kw">pub fn </span>get_frequency(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+    <span class="doccomment">/// returns the associated frequency as float
+    </span><span class="kw">pub fn </span>get_frequency(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
         (<span class="self">self</span>.frequency <span class="kw">as </span>f64) / std::u16::MAX <span class="kw">as </span>f64
     }
 }
