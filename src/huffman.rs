@@ -194,30 +194,25 @@ pub enum CompressionError {
     DataCannotBeCompressed,
 }
 
-/// Struct that represents the frequency of the different character found in a string.
+/// Struct that represents the frequency of the different characters found in a string.
 #[derive(PartialEq, PartialOrd, Ord, Eq, Debug, Clone, Copy)]
 pub struct Frequency {
     /// frequency is a value between 0 and 65536 and is equal to n/65536
-    pub frequency: u16,
+    pub count: usize,
     // I could just have total count instead of frequency actually
     /// char that the frequency represents.
-    /// It is an optional as in when we store frequencies in the huffman tree
-    /// we have nodes that hold  a combined frequency of the two children but do not hold any character.
+    /// It is optional as in when we store frequencies in the Huffman tree
+    /// we have nodes that hold a combined frequency of the two children but do not hold any character.
     pub character: Option<char>,
 }
 
 impl Frequency {
     /// instanciate a frequency.
-    pub fn build_frequency(frequency: u16, character: Option<char>) -> Frequency {
+    pub fn build_frequency(count: usize, character: Option<char>) -> Frequency {
         Frequency {
-            frequency,
+            count,
             character,
         }
-    }
-
-    /// returns the associated frequency as float
-    pub fn get_frequency(&self) -> f64 {
-        (self.frequency as f64) / std::u16::MAX as f64
     }
 }
 
@@ -226,7 +221,7 @@ impl fmt::Display for Frequency {
         write!(
             f,
             "({:.4},{})",
-            self.get_frequency(),
+            self.count,
             &(match self.character {
                 None => "None".to_string(),
                 Some(c) => c.to_string(),
@@ -236,10 +231,10 @@ impl fmt::Display for Frequency {
 }
 
 impl Tree<Frequency> {
-    pub fn get_frequency(&self) -> f64 {
+    pub fn get_count(&self) -> usize{
         match self {
-            Tree::Leaf(leaf) => leaf.get_frequency(),
-            Tree::Node { content, .. } => content.get_frequency(),
+            Tree::Leaf(leaf) => leaf.count,
+            Tree::Node { content, .. } => content.count,
         }
     }
 }
@@ -258,7 +253,7 @@ pub fn combine_nodes(
 
     let new_node = Tree::build_internal_node(
         Frequency {
-            frequency: smallest.0.get_value().frequency + second_smallest.0.get_value().frequency,
+            count: smallest.0.get_value().count + second_smallest.0.get_value().count,
             character: None,
         },
         smallest.0,
@@ -289,7 +284,7 @@ pub fn compute_frequencies(data: &str) -> Vec<Frequency> {
     });
 
     Vec::from_iter(char_counts.into_iter().map(|(c, f)| Frequency {
-        frequency: { (((f as f64) / (data.len() as f64)) * (std::u16::MAX as f64)) as u16 },
+        count: f,
         character: Some(c),
     }))
 }

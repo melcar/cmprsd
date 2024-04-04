@@ -13,12 +13,6 @@ use std::cmp::Reverse;
 
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-const EPSILON: f64 = 0.0001_f64;
-//make a macro out of it
-fn close_to(a: f64, b: f64, delta: f64) -> bool {
-    (a - b).abs() < delta
-}
-
 fn test_compression_decompression(data: &str) {
     match Huffman::compress(data) {
         Err(CompressionError::NoDataToCompress) => assert!(data.is_empty()),
@@ -141,7 +135,7 @@ pub fn compute_frequencies_one_character() {
         huffman::compute_frequencies("a")[0],
         huffman::Frequency {
             character: Some('a'),
-            frequency: std::u16::MAX
+            count: 1
         }
     )
 }
@@ -153,14 +147,14 @@ pub fn compute_frequencies_two_character_50_50() {
         frequencies[0],
         huffman::Frequency {
             character: Some('a'),
-            frequency: std::u16::MAX / 2
+            count: 2
         },
     );
     assert_eq!(
         frequencies[1],
         huffman::Frequency {
             character: Some('b'),
-            frequency: std::u16::MAX / 2
+            count: 2
         },
     );
 }
@@ -169,23 +163,21 @@ pub fn compute_frequencies_two_character_50_50() {
 pub fn compute_frequencies_two_character_25_75() {
     let frequencies = huffman::compute_frequencies("bbab");
     assert_eq!(frequencies[0].character, Some('a'));
-    assert!(close_to(frequencies[0].get_frequency(), 0.25, EPSILON));
+    assert_eq!(frequencies[0].count, 1);
 
     assert_eq!(frequencies[1].character, Some('b'));
-    assert!(close_to(frequencies[1].get_frequency(), 0.75, EPSILON));
+    assert_eq!(frequencies[1].count, 3);
 }
 
 fn check_frequencies(frequencies: &[Frequency], string: &str) {
     for frequency in frequencies.iter() {
-        assert!(close_to(
-            frequency.get_frequency(),
+        assert_eq!(
+            frequency.count,
             string
                 .chars()
                 .filter(|&c| c == frequency.character.expect("should not be None"))
-                .count() as f64
-                / string.len() as f64,
-            EPSILON
-        ));
+                .count()
+        );
     }
 }
 
@@ -216,15 +208,14 @@ pub fn compute_frequencies_random_long_string() {
     )
 }
 
-fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: f64) {
+fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: usize) {
     match node {
         Tree::Leaf(content) => {
             assert_eq!(content.character, Some(expected_char));
-            assert!(close_to(
-                content.get_frequency(),
+            assert_eq!(
+                content.count,
                 expected_frequency,
-                EPSILON
-            ))
+            )
         }
         _ => unreachable!(),
     }
@@ -262,12 +253,12 @@ pub fn combine_2_nodes_50_50_alphabetical_order() {
     assert_eq!(nodes.len(), 1);
     let combines_node = nodes.pop().unwrap().0;
     assert_eq!(combines_node.len(), 3);
-    assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
+    assert_eq!(combines_node.get_count(),2 );
     check_internal_node(
         &combines_node,
-        Frequency::build_frequency(std::u16::MAX - 1, None),
-        Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('a'))),
-        Tree::Leaf(Frequency::build_frequency(std::u16::MAX / 2, Some('b'))),
+        Frequency::build_frequency(2, None),
+        Tree::Leaf(Frequency::build_frequency(1, Some('a'))),
+        Tree::Leaf(Frequency::build_frequency(1, Some('b'))),
     );
 }
 
@@ -283,7 +274,7 @@ pub fn combine_2_nodes_75_25() {
     assert_eq!(nodes.len(), 1);
     let combines_node = nodes.pop().unwrap().0;
     assert_eq!(combines_node.len(), 3);
-    assert!(close_to(combines_node.get_frequency(), 1.0, EPSILON));
+    assert_eq!(combines_node.get_count(), 4);
 
     match combines_node {
         Tree::Node {
@@ -291,8 +282,8 @@ pub fn combine_2_nodes_75_25() {
             left,
             right,
         } => {
-            check_leaf(&left, 'a', 0.25);
-            check_leaf(&right, 'b', 0.75);
+            check_leaf(&left, 'a', 1);
+            check_leaf(&right, 'b',3);
         }
         _ => unreachable!("should be internal node. Not a leaf."),
     }
@@ -323,22 +314,22 @@ pub fn combine_5_nodes() {
             );
         });
 
-    let expected_bfs: Vec<(Option<char>, f64)> = vec![
-        (None, 1.0),
-        (None, 0.4),
-        (None, 0.6),
-        (None, 0.2),
-        (Some('c'), 0.2),
-        (Some('b'), 0.26666),
-        (Some('a'), 0.33333),
-        (Some('e'), 0.066666667),
-        (Some('d'), 0.13333333),
+    let expected_bfs: Vec<(Option<char>, usize)> = vec![
+        (None, 15),
+        (None, 6),
+        (None, 9),
+        (None, 3),
+        (Some('c'), 3),
+        (Some('b'), 4),
+        (Some('a'), 5),
+        (Some('e'), 1),
+        (Some('d'), 2),
     ];
 
     bfs.iter()
         .zip(expected_bfs.iter())
         .for_each(|(node, (expected_char, expected_frequency))| {
             assert_eq!(node.character, *expected_char);
-            assert!(close_to(node.get_frequency(), *expected_frequency, EPSILON))
+            assert_eq!(node.count, *expected_frequency);
         })
 }
