@@ -1,16 +1,11 @@
+use cmprsd::util::frequency::Frequency;
 use proptest::prelude::*;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-use cmprsd::huffman::{
-    self, build_huffman_tree, combine_nodes, compute_frequencies, CompressionError, Frequency,
-    Huffman,
-};
-use cmprsd::util::binary_tree::Tree;
+use cmprsd::huffman::{self, compute_frequencies, CompressionError, Huffman};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use std::cmp::Reverse;
 
 const LOREM_IPSUM : &str ="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -140,7 +135,7 @@ pub fn compute_frequencies_empty_string() {
 pub fn compute_frequencies_one_character() {
     assert_eq!(
         huffman::compute_frequencies("a")[0],
-        huffman::Frequency {
+        Frequency {
             character: Some('a'),
             count: 1
         }
@@ -152,14 +147,14 @@ pub fn compute_frequencies_two_character_50_50() {
     let frequencies = huffman::compute_frequencies("abab");
     assert_eq!(
         frequencies[0],
-        huffman::Frequency {
+        Frequency {
             character: Some('a'),
             count: 2
         },
     );
     assert_eq!(
         frequencies[1],
-        huffman::Frequency {
+        Frequency {
             character: Some('b'),
             count: 2
         },
@@ -213,127 +208,4 @@ pub fn compute_frequencies_random_long_string() {
         &huffman::compute_frequencies(&random_string),
         &random_string,
     )
-}
-
-fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: usize) {
-    match node {
-        Tree::Leaf(content) => {
-            assert_eq!(content.character, Some(expected_char));
-            assert_eq!(content.count, expected_frequency,)
-        }
-        _ => unreachable!(),
-    }
-}
-
-fn check_internal_node(
-    node: &Tree<Frequency>,
-    expected_content: Frequency,
-    expected_left_node: Tree<Frequency>,
-    expected_right_node: Tree<Frequency>,
-) {
-    match node {
-        Tree::Node {
-            content,
-            left,
-            right,
-        } => {
-            assert_eq!(*content, expected_content);
-            assert_eq!(*left.as_ref(), expected_left_node);
-            assert_eq!(*right.as_ref(), expected_right_node);
-        }
-        _ => unreachable!(),
-    }
-}
-
-#[test]
-pub fn combine_2_nodes_50_50_alphabetical_order() {
-    let frequencies = huffman::compute_frequencies("ab")
-        .into_iter()
-        .map(Tree::Leaf)
-        .map(Reverse)
-        .collect();
-
-    let mut nodes = combine_nodes(frequencies);
-    assert_eq!(nodes.len(), 1);
-    let combines_node = nodes.pop().unwrap().0;
-    assert_eq!(combines_node.len(), 3);
-    assert_eq!(combines_node.get_count(), 2);
-    check_internal_node(
-        &combines_node,
-        Frequency::build_frequency(2, None),
-        Tree::Leaf(Frequency::build_frequency(1, Some('a'))),
-        Tree::Leaf(Frequency::build_frequency(1, Some('b'))),
-    );
-}
-
-#[test]
-pub fn combine_2_nodes_75_25() {
-    let frequencies = huffman::compute_frequencies("abbb")
-        .into_iter()
-        .map(Tree::Leaf)
-        .map(Reverse)
-        .collect();
-
-    let mut nodes = combine_nodes(frequencies);
-    assert_eq!(nodes.len(), 1);
-    let combines_node = nodes.pop().unwrap().0;
-    assert_eq!(combines_node.len(), 3);
-    assert_eq!(combines_node.get_count(), 4);
-
-    match combines_node {
-        Tree::Node {
-            content: _,
-            left,
-            right,
-        } => {
-            check_leaf(&left, 'a', 1);
-            check_leaf(&right, 'b', 3);
-        }
-        _ => unreachable!("should be internal node. Not a leaf."),
-    }
-}
-
-#[test]
-pub fn combine_5_nodes() {
-    let input = "aaaaabbbbcccdde";
-    let frequencies = compute_frequencies(input);
-    assert_eq!(frequencies.len(), 5);
-
-    let tree = build_huffman_tree(&frequencies);
-    assert_eq!(tree.len(), 9);
-    assert_eq!(tree.height(), 4);
-    let bfs = tree.to_breadth_first_search();
-    assert_eq!(bfs.len(), tree.len());
-    let mut expected_frequencies: HashMap<char, f64> =
-        input.chars().map(|c| (c, 0_f64)).collect::<HashMap<_, _>>();
-
-    expected_frequencies
-        .clone()
-        .keys()
-        .copied()
-        .for_each(|character| {
-            expected_frequencies.insert(
-                character,
-                (input.chars().filter(|c| *c == character).count() as f64) / (input.len() as f64),
-            );
-        });
-
-    let expected_bfs: Vec<(Option<char>, usize)> = vec![
-        (None, 15),
-        (None, 6),
-        (None, 9),
-        (None, 3),
-        (Some('c'), 3),
-        (Some('b'), 4),
-        (Some('a'), 5),
-        (Some('e'), 1),
-        (Some('d'), 2),
-    ];
-
-    bfs.iter()
-        .zip(expected_bfs.iter())
-        .for_each(|(node, (expected_char, expected_frequency))| {
-            assert_eq!(node.character, *expected_char);
-            assert_eq!(node.count, *expected_frequency);
-        })
 }
