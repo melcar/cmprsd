@@ -1,3 +1,4 @@
+use proptest::prelude::*;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -36,6 +37,12 @@ fn test_compression_decompression(data: &str) {
                 data, decompressed_data
             );
         }
+    }
+}
+proptest! {
+    #[test]
+    fn random_tests(s in "\\PC*") {
+    test_compression_decompression(&s);
     }
 }
 
@@ -212,10 +219,7 @@ fn check_leaf(node: &Tree<Frequency>, expected_char: char, expected_frequency: u
     match node {
         Tree::Leaf(content) => {
             assert_eq!(content.character, Some(expected_char));
-            assert_eq!(
-                content.count,
-                expected_frequency,
-            )
+            assert_eq!(content.count, expected_frequency,)
         }
         _ => unreachable!(),
     }
@@ -253,7 +257,7 @@ pub fn combine_2_nodes_50_50_alphabetical_order() {
     assert_eq!(nodes.len(), 1);
     let combines_node = nodes.pop().unwrap().0;
     assert_eq!(combines_node.len(), 3);
-    assert_eq!(combines_node.get_count(),2 );
+    assert_eq!(combines_node.get_count(), 2);
     check_internal_node(
         &combines_node,
         Frequency::build_frequency(2, None),
@@ -283,7 +287,7 @@ pub fn combine_2_nodes_75_25() {
             right,
         } => {
             check_leaf(&left, 'a', 1);
-            check_leaf(&right, 'b',3);
+            check_leaf(&right, 'b', 3);
         }
         _ => unreachable!("should be internal node. Not a leaf."),
     }
