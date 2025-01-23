@@ -7,4 +7,5 @@
 //! 
 //! 
 pub mod huffman;
+pub mod bwt;
 pub mod util;
