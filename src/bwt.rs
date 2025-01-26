@@ -1,3 +1,5 @@
+use crate::encoder::EncoderDecoder;
+
 pub struct BWT {
     //L in the paper
     pub transformed_string: String,
@@ -78,5 +80,14 @@ impl BWT {
             .collect();
         // Thirds Step we build back S from T
         Self::build_back_s(&self.transformed_string, &t, self.index as usize)
+    }
+}
+
+impl EncoderDecoder for BWT {
+    fn encode(data: &str) -> Self {
+        BWT::transform(data)
+    }
+    fn decode(&self) -> String {
+        self.inverse_tranform()
     }
 }

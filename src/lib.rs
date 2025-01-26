@@ -8,4 +8,5 @@
 //! 
 pub mod huffman;
 pub mod bwt;
+pub mod encoder;
 pub mod util;
