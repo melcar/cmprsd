@@ -1,10 +1,12 @@
 //!Huffman coding and decoding
-use super::util::frequency::Frequency;
+use crate::encoder::EncoderDecoder;
+
 use super::util::binary_tree::{
     Direction,
     Direction::{Left, Right},
     Tree,
 };
+use super::util::frequency::Frequency;
 use std::{
     cmp::Reverse,
     collections::{BTreeMap, BinaryHeap, HashMap},
@@ -184,6 +186,16 @@ impl Huffman {
     }
 }
 
+impl EncoderDecoder for Huffman {
+    fn encode(data: &str) -> Self {
+        Huffman::compress(data).expect("Compression should not fail")
+    }
+
+    fn decode(&self) -> String {
+        self.decompress()
+    }
+}
+
 /// Represents errors that can occure during compression.
 /// So far only two are represented.
 #[derive(Debug, Clone)]
@@ -193,7 +205,6 @@ pub enum CompressionError {
     /// It happens when the text to compressed is made of only one repeated character.
     DataCannotBeCompressed,
 }
-
 
 // take an huffman tree and create a map of character to encoding
 pub fn huffman_tree_to_map() {}
