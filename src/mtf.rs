@@ -26,7 +26,13 @@ impl MTF {
     }
 
     pub fn inverse_transform(&self) -> String {
-        todo!()
+        let mut alphabet = self.alphabet.clone();
+        self.indices.iter().map(|&idx| {
+            let ch = alphabet[idx];
+            alphabet.remove(idx);
+            alphabet.insert(0, ch);
+            ch
+        }).collect()
     }
 }
 
